@@ -5,9 +5,7 @@ export default defineNuxtConfig({
   ssr: true,
   debug: true,
   css: ['~/assets/css/index.sass'],
-  components: {
-    dirs: ['~/components/global', '~/components/pages']
-  },
+  components: true,
   experimental: {
     payloadExtraction: false,
     inlineSSRStyles: false,

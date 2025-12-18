@@ -39,7 +39,7 @@ function criar3d() {
     scene.add(model)
     scene.add(new THREE.AmbientLight(0xffffff, 0.2))
 
-    directionalLight = new THREE.DirectionalLight(0xffffff, 5)
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
     scene.add(directionalLight)
   })
 

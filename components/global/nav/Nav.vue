@@ -1,16 +1,17 @@
 <template>
+  <!-- Seu template permanece igual -->
   <nav :class="{ aberto: state.menu }">
     <img src="/images/logo-linha.svg" class="logo" alt="logo" />
     <div class="opcoes">
-      <a @click="scrollParaSection('.cronograma')">Dia e Horário</a>
-      <a @click="scrollParaSection('.aprender')">Conteúdo</a>
-      <a @click="scrollParaSection('.duvidas')">Dúvidas</a>
-      <a @click="scrollParaSection('#professor')">Seu Professor</a>
+      <a @click="scrollParaSection('.recursos')">Recursos</a>
+      <a @click="scrollParaSection('.depoimentos')">Depoimentos</a>
     </div>
-    <a class="ingresso" @click="scrollParaSection('.comprar')">
-      <Svgs nome="ingresso" />
-      Garantir Ingresso
-    </a>
+
+    <div class="buttons">
+      <a class="botao" href="login"">Cadastrar</a>
+      <a class="botao" href="login"">Entrar</a>
+    </div>
+
     <button class="menu" @click="state.menu = !state.menu" :class="{ aberto: state.menu }">
       <span class="um"></span>
       <span class="dois"></span>
@@ -37,7 +38,7 @@ nav
   display: flex
   align-items: center
   justify-content: space-between
-  width: calc(100% - 160px)
+  width: calc(100% - 360px)
   max-width: 1920px
   position: fixed
   top: 20px
@@ -62,9 +63,9 @@ nav
       font-size: var(--f1)
       font-family: var(--light)
       color: var(--cor-cinza)
-      border-right: 1px solid var(--cor-escuro-5)
       padding: 0 30px 0 0
       transition: all 0.3s
+      cursor: pointer
 
       &:last-child
         border-right: none
@@ -73,7 +74,12 @@ nav
       &:hover
         color: var(--cor-verde)
 
-  .ingresso
+  .buttons
+    display: flex
+    align-items: center
+    gap: 10px
+
+  .botao
     display: flex
     align-items: center
     justify-content: center
@@ -97,7 +103,7 @@ nav
   button.menu
     display: none
 
-@media screen and (max-width: 1000px)
+@media screen and (max-width: 1100px)
   nav
     align-items: flex-start
     width: calc(100% - 60px)
@@ -111,7 +117,7 @@ nav
     transition: all 0.3s
 
     &.aberto
-      height: 310px
+      height: 350px // Aumentei para acomodar os botões
 
     img.logo
       width: 160px
@@ -123,20 +129,36 @@ nav
       align-items: flex-start
       gap: 0
       position: absolute
-      top: 50px
+      top: 80px
+      left: 30px
+      right: 30px
 
       a
-        font-size: var(--f2)
+        font-size: var(--f3)
         border-right: none
         padding: 12px 0
+        width: 100%
 
         &:last-child
           border-right: none
           padding: 15px 0
 
-    .ingresso
+    .buttons
       position: absolute
-      top: 230px
+      top: 200px // Posiciona abaixo das opções
+      display: flex
+      flex-direction: column // Empilha os botões verticalmente
+      justify-content: start
+      gap: 15px
+      opacity: 0
+      transition: opacity 0.3s ease
+
+    &.aberto .buttons
+      opacity: 1 // Mostra os botões apenas quando o menu está aberto
+
+    .botao
+      justify-content: center
+      text-align: center
 
     button.menu
       display: flex
@@ -144,7 +166,9 @@ nav
       justify-content: center
       width: 30px
       height: 30px
-      position: relative
+      position: absolute
+      right: 30px
+      top: 15px
       background-color: transparent
 
       &.aberto

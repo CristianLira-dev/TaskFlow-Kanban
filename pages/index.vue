@@ -1,7 +1,5 @@
 <template>
-  <div id="tela">
-    <IndexSectionHero />
-  </div>
+  <div id="tela"></div>
 </template>
 
 <script setup>
