@@ -5,8 +5,6 @@ O projeto permite criar quadros personalizados, organizar tarefas em colunas e m
 
 # DEPLOY taskflow.com
 
----
-
 ## ✨ Funcionalidades
 
 - Cadastro e login de usuários
