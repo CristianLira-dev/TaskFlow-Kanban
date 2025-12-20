@@ -1,15 +1,17 @@
 <template>
-  <!-- Seu template permanece igual -->
   <nav :class="{ aberto: state.menu }">
-    <img src="/images/logo-linha.svg" class="logo" alt="logo" />
+    <div class="nav-logo">
+      <Svgs nome="taskflow" class="logo" />
+      <h1>TaskFlow</h1>
+    </div>
     <div class="opcoes">
       <a @click="scrollParaSection('.recursos')">Recursos</a>
       <a @click="scrollParaSection('.depoimentos')">Depoimentos</a>
     </div>
 
     <div class="buttons">
-      <a class="botao" href="login"">Cadastrar</a>
-      <a class="botao" href="login"">Entrar</a>
+      <a class="cadastro" href="login">Cadastrar</a>
+      <a class="entrar" href="login">Entrar</a>
     </div>
 
     <button class="menu" @click="state.menu = !state.menu" :class="{ aberto: state.menu }">
@@ -20,6 +22,8 @@
 </template>
 
 <script setup>
+import Svgs from '../svgs/Svgs.vue'
+
 const state = reactive({
   menu: false
 })
@@ -49,10 +53,23 @@ nav
   padding: 0 15px 0 35px
   background-color: var(--cor-escuro-3-transparente)
   backdrop-filter: blur(15px)
+  border: 0.5px solid var(--cor-branco)
   z-index: 10
 
-  img.logo
-    width: 200px
+  .nav-logo
+    display: flex
+    align-items: center
+    gap: 7px
+
+    h1
+      font-size: var(--f5)
+      font-weight: bold
+      font-family: var(--semibold)
+      color: var(--cor-branco)
+
+  .logo
+    width: 60px
+    fill: var(--cor-roxo)
 
   .opcoes
     display: flex
@@ -60,7 +77,7 @@ nav
     gap: 30px
 
     a
-      font-size: var(--f1)
+      font-size: var(--f2)
       font-family: var(--light)
       color: var(--cor-cinza)
       padding: 0 30px 0 0
@@ -72,30 +89,45 @@ nav
         padding: 0 0 0 0
 
       &:hover
-        color: var(--cor-verde)
+        color: var(--cor-roxo-claro)
 
   .buttons
     display: flex
     align-items: center
     gap: 10px
 
-  .botao
+  .cadastro
     display: flex
     align-items: center
     justify-content: center
     gap: 10px
     font-size: var(--f1)
     font-family: var(--semibold)
-    color: var(--cor-verde)
+    color: var(--cor-branco)
     border-radius: 100px
-    background: linear-gradient(90deg, var(--cor-verde-escuro-3) 0%, var(--cor-verde-escuro-2) 100%)
-    padding: 15px 30px
+    background: transparent
+    border: 0.5px solid var(--cor-branco)
+    padding: 15px 40px
     transition: all 0.3s
     cursor: pointer
 
-    svg
-      width: 15px
-      fill: var(--cor-verde)
+    &:hover
+      background-color: var(--cor-branco)
+      color: var(--cor-escuro-1)
+
+  .entrar
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 10px
+    font-size: var(--f2)
+    font-family: var(--semibold)
+    color: var(--cor-branco)
+    border-radius: 100px
+    background: linear-gradient(90deg, var(--cor-roxo) 0%, var(--cor-roxo-claro) 100%)
+    padding: 15px 40px
+    transition: all 0.5s
+    cursor: pointer
 
     &:hover
       filter: brightness(1.2)
@@ -103,7 +135,7 @@ nav
   button.menu
     display: none
 
-@media screen and (max-width: 1100px)
+@media screen and (max-width: 1200px)
   nav
     align-items: flex-start
     width: calc(100% - 60px)
@@ -111,7 +143,7 @@ nav
     left: 30px
     height: 60px
     border-radius: 30px
-    padding: 15px 30px 0 30px
+    padding: 0px 30px 0 30px
     transform: translateX(0)
     overflow: hidden
     transition: all 0.3s
