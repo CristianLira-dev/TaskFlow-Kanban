@@ -22,221 +22,119 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 const canvas3d = ref(null)
 
 onMounted(() => {
-  // ============================================
-  // 1. CONFIGURAÇÃO INICIAL DA CENA 3D
-  // ============================================
+  /* ===============================
+   * CENA
+   * =============================== */
   const scene = new THREE.Scene()
-  // Scene é o container principal que contém todos os objetos 3D
 
-  // ============================================
-  // 2. CONFIGURAÇÃO DA CÂMERA
-  // ============================================
-  const camera = new THREE.PerspectiveCamera(
-    35, // Campo de visão (FOV) - quanto maior, mais ampla a visão
-    canvas3d.value.clientWidth / canvas3d.value.clientHeight, // Proporção da tela
-    0.1, // Plano de corte próximo - objetos mais próximos que isto não são renderizados
-    1000 // Plano de corte distante - objetos mais distantes não são renderizados
-  )
-  // Posiciona a câmera: (x, y, z)
-  camera.position.set(0, 0, 4)
+  /* ===============================
+   * CÂMERA
+   * =============================== */
+  const camera = new THREE.PerspectiveCamera(35, canvas3d.value.clientWidth / canvas3d.value.clientHeight, 0.1, 100)
+  camera.position.set(0, 0.2, 4)
 
-  // ============================================
-  // 3. CONFIGURAÇÃO DO RENDERIZADOR
-  // ============================================
+  /* ===============================
+   * RENDERER
+   * =============================== */
   const renderer = new THREE.WebGLRenderer({
-    antialias: true, // Suaviza as bordas (anti-aliasing)
-    alpha: true // Permite fundo transparente
+    antialias: true,
+    alpha: true
   })
-
-  // Define o tamanho do renderizador igual ao container
   renderer.setSize(canvas3d.value.clientWidth, canvas3d.value.clientHeight)
-
-  // Otimiza para telas retina, limitando a 2x para performance
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-  // Adiciona o canvas do Three.js ao DOM
   canvas3d.value.appendChild(renderer.domElement)
 
-  // ============================================
-  // 4. CONFIGURAÇÃO DAS LUZES
-  // ============================================
-  const directional = new THREE.DirectionalLight(0xffffff, 0.5)
-  // Luz direcional (como o sol) - cor branca, intensidade 0.5
-  directional.position.set(-239.91, 383.25, 80.65) // Posição da luz
-  scene.add(directional)
+  /* ===============================
+   * LUZES
+   * =============================== */
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6))
 
-  // ============================================
-  // 5. CARREGAMENTO DO MODELO 3D
-  // ============================================
-  const loader = new GLTFLoader()
-  let model, screenLid, screenDisplay
-  // model: modelo completo do notebook
-  // screenLid: tampa/lid do notebook
-  // screenDisplay: tela/display LCD
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1)
+  dirLight.position.set(5, 10, 5)
+  scene.add(dirLight)
 
-  loader.load('/images/notebookSemfundo.glb', (gltf) => {
-    model = gltf.scene // Obtém a cena do modelo
+  /* ===============================
+   * LOADERS
+   * =============================== */
+  const gltfLoader = new GLTFLoader()
+  const textureLoader = new THREE.TextureLoader()
 
-    // ============================================
-    // 5.1 AJUSTES GLOBAIS DO MODELO
-    // ============================================
-    model.scale.set(0.8, 0.8, 0.8) // Escala: 80% do tamanho original
-    model.position.set(0, -0.6, 0) // Posição: centroX, abaixoY, centroZ
-    model.rotation.y = -0.5 // Rotação inicial no eixo Y
+  let screenLid = null
+  let screenMesh = null
 
-    // ============================================
-    // 5.2 LOCALIZAÇÃO DOS OBJETOS PELO NOME
-    // ============================================
-    // IMPORTANTE: Verifique no Spline os nomes exatos
-    // Possíveis nomes: 'Screen', 'Lid', 'Tampa' para a tampa
-    // Possíveis nomes: 'screen', 'Display', 'Tela' para o display
+  let openProgress = 0
+  const targetAngle = -1.3 // ângulo de abertura
 
-    screenLid = model.getObjectByName('Screen') // Tampa (S maiúsculo)
-    screenDisplay = model.getObjectByName('screen') // Tela (s minúsculo)
+  /* ===============================
+   * MODELO
+   * =============================== */
+  gltfLoader.load('/images/macbook_mockup.glb', (gltf) => {
+    const model = gltf.scene
 
-    // ============================================
-    // 5.3 DEBUG: VERIFICAÇÃO DOS OBJETOS ENCONTRADOS
-    // ============================================
-    console.log('=== DEBUG INICIAL ===')
-    console.log('Tampa encontrada?', screenLid)
-    console.log('Tela encontrada?', screenDisplay)
+    model.scale.set(0.8, 0.8, 0.8)
+    model.position.set(0, -0.6, 0)
+    model.rotation.y = -0.5
 
-    if (screenLid) {
-      console.log('Posição INICIAL da Tampa:', screenLid.position)
-      console.log('Rotação INICIAL da Tampa:', screenLid.rotation)
-    }
+    // --- TAMPA ---
+    screenLid = model.getObjectByName('Screen')
+    console.log('Screen (tampa):', screenLid)
 
-    if (screenDisplay) {
-      console.log('Posição INICIAL da Tela:', screenDisplay.position)
-      console.log('Rotação INICIAL da Tela:', screenDisplay.rotation)
-    }
-
-    // ============================================
-    // 5.4 AJUSTES ESPECÍFICOS - TAMPA E TELA
-    // ============================================
-    if (screenLid && screenDisplay) {
-      console.log('=== APLICANDO AJUSTES ===')
-
-      // ------------------------------------------------------
-      // OPÇÃO A: ALINHAMENTO SIMPLES (Experimente primeiro)
-      // ------------------------------------------------------
-      /*
-      // 1. Alinha a tampa com a tela nos eixos X e Y
-      screenLid.position.x = screenDisplay.position.x
-      screenLid.position.y = screenDisplay.position.y
-
-      // 2. AJUSTE CRÍTICO: Posição Z (profundidade)
-      // Valor positivo = tampa mais para trás
-      // Valor negativo = tampa mais para frente
-      // Experimente valores entre 0.01 e 0.05
-      const espessuraTampa = 0.03 // 3cm de espessura
-      screenLid.position.z = screenDisplay.position.z - espessuraTampa
-      */
-
-      // ------------------------------------------------------
-      // OPÇÃO B: ALINHAMENTO COM ROTAÇÃO (Mais preciso)
-      // ------------------------------------------------------
-      /*
-      // Copia toda a transformação da tela para a tampa
-      screenLid.position.copy(screenDisplay.position)
-      screenLid.rotation.copy(screenDisplay.rotation)
-      screenLid.scale.copy(screenDisplay.scale)
-
-      // Ajuste fino apenas no eixo Z
-      screenLid.position.z += 0.02 // Move a tampa 2cm para frente
-      */
-
-      // ------------------------------------------------------
-      // OPÇÃO C: PARENTEAMENTO (Recomendado para animação)
-      // ------------------------------------------------------
-
-      // 1. Primeiro, alinha a tampa com a tela
-      screenLid.position.x = screenDisplay.position.x
-      screenLid.position.y = screenDisplay.position.y - 9
-      screenLid.position.z = screenDisplay.position.z - 60 // Ajuste fino
-
-      // 2. Faz a tela ser filha da tampa
-      // Isso garante que quando a tampa se mover, a tela acompanhe
-      if (screenDisplay.parent !== screenLid) {
-        // Guarda a posição/rotação atual da tela
-        const posOriginal = screenDisplay.position.clone()
-        const rotOriginal = screenDisplay.rotation.clone()
-        const scaleOriginal = screenDisplay.scale.clone()
-
-        // Remove a tela do seu pai atual
-        if (screenDisplay.parent) {
-          screenDisplay.parent.remove(screenDisplay)
-        }
-
-        // Adiciona a tela como filha da tampa
-        screenLid.add(screenDisplay)
-
-        // Restaura a posição/rotação original (agora relativa à tampa)
-        screenDisplay.position.copy(posOriginal)
-        screenDisplay.rotation.copy(rotOriginal)
-        screenDisplay.scale.copy(scaleOriginal)
-
-        console.log('Tela agora é filha da Tampa')
+    // --- BUSCA DA TELA ---
+    model.traverse((child) => {
+      if (child.isMesh && child.name.toLowerCase().includes('screen')) {
+        screenMesh = child
       }
+    })
 
-      // 3. Ajuste final de posição relativa
-      // Como agora são pai-filho, podemos ajustar posições relativas
-      screenDisplay.position.set(0, 0, 0.01) // Tela 1cm na frente da tampa
+    console.log('screen (tela):', screenMesh)
 
-      console.log('Ajuste aplicado: Tampa atrás da Tela')
-      console.log('Posição FINAL da Tampa:', screenLid.position)
-      console.log('Posição FINAL da Tela (relativa):', screenDisplay.position)
+    /* ===============================
+     * APLICA IMAGEM NA TELA
+     * =============================== */
+    if (screenMesh) {
+      textureLoader.load('/images/certificado.webp', (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace
+        texture.flipY = false
+
+        screenMesh.material = new THREE.MeshStandardMaterial({
+          map: texture,
+          emissiveMap: texture,
+          emissive: new THREE.Color(0xffffff),
+          emissiveIntensity: 0.4,
+          roughness: 0.6,
+          metalness: 0
+        })
+
+        // evita z-fighting com a tampa
+        screenMesh.position.z += 0.01
+      })
     }
 
-    // ============================================
-    // 5.5 ADICIONA O MODELO À CENA E INICIA ANIMAÇÃO
-    // ============================================
     scene.add(model)
-    animate() // Inicia o loop de animação
+    animate()
   })
 
-  // ============================================
-  // 6. LOOP DE ANIMAÇÃO
-  // ============================================
+  /* ===============================
+   * ANIMAÇÃO
+   * =============================== */
   function animate() {
-    // Solicita o próximo frame (60fps)
     requestAnimationFrame(animate)
 
-    // ============================================
-    // 6.1 ANIMAÇÃO DA TAMPA (E DA TELA POR HERANÇA)
-    // ============================================
-    if (screenLid) {
-      // Controle da abertura da tampa
-      // Valores para experimentar:
-      // -0.5 = pouca abertura
-      // -1.0 = abertura média
-      // -1.5 = abertura grande
-      // -Math.PI/2 = 90 graus (-1.57)
-      const target = -1.2 // Ângulo alvo em radianos
-
-      // Interpolação suave (5% por frame)
-      screenLid.rotation.x += (target - screenLid.rotation.x) * 0.05
-
-      console.log('Ângulo atual da Tampa:', screenLid.rotation.x.toFixed(3))
+    if (screenLid && openProgress < 1) {
+      openProgress += 0.02
+      const eased = 1 - Math.pow(1 - openProgress, 3)
+      screenLid.rotation.x = targetAngle * eased
     }
 
-    // ============================================
-    // 6.2 RENDERIZAÇÃO FINAL
-    // ============================================
     renderer.render(scene, camera)
   }
 
-  // ============================================
-  // 7. TRATAMENTO DE REDIMENSIONAMENTO DA JANELA
-  // ============================================
+  /* ===============================
+   * RESIZE
+   * =============================== */
   window.addEventListener('resize', () => {
-    if (!canvas3d.value) return
-
-    // Atualiza proporção da câmera
     camera.aspect = canvas3d.value.clientWidth / canvas3d.value.clientHeight
-    camera.updateProjectionMatrix() // Recalcula matriz de projeção
-
-    // Ajusta tamanho do renderizador
+    camera.updateProjectionMatrix()
     renderer.setSize(canvas3d.value.clientWidth, canvas3d.value.clientHeight)
   })
 })
@@ -260,7 +158,7 @@ section.insano
     height: 140%
     right: 0
     bottom: 0
-    z-index: 4
+    z-index: 10
 
   .texto
     display: flex
@@ -321,13 +219,7 @@ section.insano
   section.insano
     flex-direction: column
 
-    .canvas.um
-      width: 600px
-      height: 600px
-      right: auto
-
-    .canvas.dois
-      position: absolute
+    .canvas
       width: 100%
       height: 50%
       right: 0
