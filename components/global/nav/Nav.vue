@@ -10,8 +10,8 @@
     </div>
 
     <div class="buttons">
-      <a class="cadastro" href="Login">Cadastrar</a>
-      <a class="entrar" href="Login">Entrar</a>
+      <a class="cadastro" href="login">Cadastrar</a>
+      <a class="entrar" href="login">Entrar</a>
     </div>
 
     <button class="menu" @click="state.menu = !state.menu" :class="{ aberto: state.menu }">
@@ -54,7 +54,7 @@ nav
   background-color: var(--cor-escuro-3-transparente)
   backdrop-filter: blur(15px)
   border: 0.5px solid var(--cor-branco)
-  z-index: 1000
+  z-index: 15
 
   .nav-logo
     display: flex

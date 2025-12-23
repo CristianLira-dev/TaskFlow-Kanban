@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     densities: [1, 2]
   },
   nitro: {
+    preset: 'vercel',
     compressPublicAssets: true,
     minify: true,
     storage: {

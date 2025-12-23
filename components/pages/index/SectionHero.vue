@@ -11,7 +11,6 @@
     <div class="canvas" ref="canvas3d"></div>
 
     <div class="blush um"></div>
-    <div class="blush dois"></div>
   </section>
 </template>
 
@@ -148,7 +147,6 @@ section.insano
   justify-content: space-between
   width: 100%
   min-height: 100dvh
-  background: linear-gradient(0deg, #0F1119, #090F26)
   position: relative
   overflow: hidden
 
@@ -204,16 +202,12 @@ section.insano
     height: 2000px
     border-radius: 50%
     background: radial-gradient(circle at center, #6200EA, #6200EA00 60%)
-    z-index: 2
+    z-index: 10000
 
     &.um
       top: -1150px
       left: -1150px
       opacity: 0.5
-
-    &.dois
-      bottom: -1150px
-      right: -1150px
 
 @media screen and (max-width: 1000px)
   section.insano
@@ -247,8 +241,4 @@ section.insano
       &.um
           top: -500px
           left: -500px
-
-      &.dois
-          bottom: -500px
-          right: -500px
 </style>

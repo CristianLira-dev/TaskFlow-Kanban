@@ -1,9 +1,13 @@
 <template>
   <SectionHero></SectionHero>
+  <SectionImage></SectionImage>
+  <SectionDepoimentos></SectionDepoimentos>
 </template>
 
 <script setup>
 import SectionHero from '../components/pages/index/SectionHero.vue'
+import SectionImage from '../components/pages/index/SectionImage.vue'
+import SectionDepoimentos from '../components/pages/index/SectionDepoimentos.vue'
 
 definePageMeta({
   layout: 'web'
