@@ -202,7 +202,7 @@ section.insano
     height: 2000px
     border-radius: 50%
     background: radial-gradient(circle at center, #6200EA, #6200EA00 60%)
-    z-index: 10000
+    z-index: 0
 
     &.um
       top: -1150px

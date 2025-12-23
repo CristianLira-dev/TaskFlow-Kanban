@@ -54,7 +54,7 @@ nav
   background-color: var(--cor-escuro-3-transparente)
   backdrop-filter: blur(15px)
   border: 0.5px solid var(--cor-branco)
-  z-index: 15
+  z-index: 100
 
   .nav-logo
     display: flex
