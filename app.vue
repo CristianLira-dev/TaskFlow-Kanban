@@ -7,7 +7,7 @@
 <script setup>
 useHead({
   htmlAttrs: {
-    lang: 'pt-BR'
+    lang: 'pt-br'
   },
   meta: [
     // metatags
@@ -16,9 +16,9 @@ useHead({
     { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes' },
     { name: 'format-detection', content: 'telephone=no' },
     { name: 'HandheldFriendly', content: 'true' },
-    { name: 'theme-color', content: '#FFFFFF' },
-    { name: 'msapplication-TileColor', content: '#FFFFFF' },
-    { name: 'msapplication-navbutton-color', content: '#FFFFFF' },
+    { name: 'theme-color', content: '#6200EA' },
+    { name: 'msapplication-TileColor', content: '#6200EA' },
+    { name: 'msapplication-navbutton-color', content: '#6200EA' },
     { name: 'apple-mobile-web-app-capable', content: 'yes' },
     { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
     { name: 'mobile-web-app-capable', content: 'yes' },
@@ -54,7 +54,7 @@ useHead({
     { rel: 'icon', type: 'image/png', sizes: '256x256', href: '/favicons/android-chrome-256x256.png' },
     { rel: 'icon', type: 'image/png', sizes: '384x384', href: '/favicons/android-chrome-384x384.png' },
     { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/favicons/android-chrome-512x512.png' },
-    { rel: 'mask-icon', href: '/favicons/safari-pinned-tab.svg', color: '#FFFFFF' }
+    { rel: 'mask-icon', href: '/favicons/safari-pinned-tab.svg', color: '#6200EA' }
   ]
 })
 

@@ -16,9 +16,9 @@ definePageMeta({
 useHead({
   title: 'TaskFlow',
   meta: [
-    { name: 'description', content: 'Aprenda na prática a criar um site com NuxtJS ao vivo nos dias 06 e 07 de Dezembro' },
+    { name: 'description', content: 'TaskFlow é um gerenciador de tarefas visual com quadros Kanban, drag & drop e organização simples para aumentar sua produtividade.' },
     { property: 'og:title', content: 'TaskFlow' },
-    { property: 'og:description', content: 'Aprenda na prática a criar um site com NuxtJS ao vivo nos dias 06 e 07 de Dezembro' }
+    { property: 'og:description', content: 'TaskFlow é um gerenciador de tarefas visual com quadros Kanban, drag & drop e organização simples para aumentar sua produtividade.' }
   ]
 })
 </script>
