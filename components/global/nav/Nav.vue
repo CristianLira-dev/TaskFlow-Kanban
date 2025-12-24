@@ -2,7 +2,7 @@
   <nav :class="{ aberto: state.menu }">
     <div class="nav-logo">
       <Svgs nome="taskflow" class="logo" />
-      <h1>TaskFlow</h1>
+      <p>TaskFlow</p>
     </div>
     <div class="opcoes">
       <a @click="scrollParaSection('.recursos')">Recursos</a>
@@ -10,8 +10,8 @@
     </div>
 
     <div class="buttons">
-      <a class="cadastro" href="login">Cadastrar</a>
-      <a class="entrar" href="login">Entrar</a>
+      <NuxtLink to="login" class="cadastro">Cadastrar</NuxtLink>
+      <NuxtLink to="login" class="entrar">Entrar</NuxtLink>
     </div>
 
     <button class="menu" @click="state.menu = !state.menu" :class="{ aberto: state.menu }">
@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import { defineNuxtLink } from 'nuxt/app'
 import Svgs from '../svgs/Svgs.vue'
 
 const state = reactive({
@@ -61,7 +62,7 @@ nav
     align-items: center
     gap: 7px
 
-    h1
+    p
       font-size: var(--f5)
       font-weight: bold
       font-family: var(--semibold)
@@ -69,7 +70,6 @@ nav
 
   .logo
     width: 60px
-    fill: var(--cor-roxo)
 
   .opcoes
     display: flex
@@ -148,12 +148,15 @@ nav
     overflow: hidden
     transition: all 0.3s
 
+    .nav-logo p
+      font-size: var(--f4)
+
     &.aberto
       height: 350px // Aumentei para acomodar os botões
 
     img.logo
-      width: 160px
-      margin: 5px 0 0 0
+      width: 120px
+      margin: 100px 0 0 0
 
     .opcoes
       display: flex
