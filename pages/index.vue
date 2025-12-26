@@ -1,6 +1,7 @@
 <template>
   <SectionHero></SectionHero>
   <SectionImage></SectionImage>
+  <SectionRecursos></SectionRecursos>
   <SectionDepoimentos></SectionDepoimentos>
 </template>
 
@@ -8,6 +9,7 @@
 import SectionHero from '../components/pages/index/SectionHero.vue'
 import SectionImage from '../components/pages/index/SectionImage.vue'
 import SectionDepoimentos from '../components/pages/index/SectionDepoimentos.vue'
+import SectionRecursos from '../components/pages/index/SectionRecursos.vue'
 
 definePageMeta({
   layout: 'web'
