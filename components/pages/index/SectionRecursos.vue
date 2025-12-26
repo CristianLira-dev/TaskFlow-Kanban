@@ -43,16 +43,20 @@
   justify-content: center
   width: 100%
   padding: 0 20px 100px 20px
+  box-sizing: border-box
 
   .text
     text-align: center
     margin-bottom: 30px
+    max-width: 800px
+    width: 100%
 
     h1
       font-family: var(--semibold)
       font-weight: 900
-      font-size: var(--f8)
+      font-size: var(--f7)
       color: var(--cor-branco)
+      line-height: 1.5
 
       strong
         color: var(--cor-roxo)
@@ -63,77 +67,120 @@
       color: var(--cor-cinza)
       line-height: 1.5
       margin-top: 10px
+      max-width: 500px
+      margin-left: auto
+      margin-right: auto
 
   .cards
     display: flex
-    align-items: center
+    align-items: stretch
     justify-content: center
-    gap: 40px
+    gap: clamp(20px, 4vw, 40px)
     margin-top: 40px
     flex-wrap: wrap
+    width: 100%
+    max-width: 1200px
 
     .card
       display: flex
       flex-direction: column
       align-items: center
-      width: clamp(195px, 20vw, 278px)
-      height: clamp(166px, 17vw, 237px)
+      justify-content: flex-start
+      width: 100%
+      max-width: 300px
+      min-width: 200px
+      flex: 1 1 250px
+      min-height: 237px
       border: solid 0.5px var(--cor-roxo)
-      gap: 10px
+      padding: clamp(20px, 3vw, 25px) clamp(15px, 2vw, 20px)
       background: linear-gradient(130deg, var(--cor-azul-forte) 0%, var(--cor-roxo) 370%)
-      padding: 23px
       border-radius: 24px
       transition: all 0.3s ease
+      box-sizing: border-box
 
       .icone-container
-        width: 70px
-        height: 70px
+        width: clamp(60px, 10vw, 70px)
+        height: clamp(60px, 10vw, 70px)
+        min-width: 60px
+        min-height: 60px
+        aspect-ratio: 1 / 1
         padding: 10px
-        background-color: var(--cor-azul-forte)
-        border-radius: 100%
-        margin: 30px 0 15px 0
+        background: linear-gradient(130deg, var(--cor-azul-forte) 0%, var(--cor-roxo) 370%)
+        border: solid 1px var(--cor-branco)
+        border-radius: 50%
+        margin: clamp(15px, 3vw, 30px) 0 clamp(10px, 2vw, 15px) 0
         display: flex
         align-items: center
         justify-content: center
+        box-sizing: border-box
 
         svg
-          width: 30px
-          height: 30px
+          width: 60%
+          height: 60%
+          max-width: 30px
+          max-height: 30px
           fill: var(--cor-branco)
 
       .icone-tarefas-container
-        width: 100px
-        height: 80px
-        margin: 30px 0 0 0
+        width: clamp(90px, 15vw, 110px)
+        height: clamp(90px, 15vw, 110px)
+        min-width: 90px
+        min-height: 90px
+        aspect-ratio: 1 / 1
+        margin: clamp(5px, 1vw, 10px) 0 0 0
         display: flex
         align-items: center
         justify-content: center
 
         svg
-          width: 100px
-          height: 100px
+          width: 100%
+          height: 100%
+          object-fit: contain
 
       h2
         font-family: var(--semibold)
         font-size: var(--f3)
         color: var(--cor-branco)
         text-align: center
+        margin-top: auto
+        width: 100%
 
 .botao
   display: flex
   align-items: center
   justify-content: center
-  font-size: var(--f4)
+  font-size: var(--f2)
   font-family: var(--semibold)
   color: var(--cor-branco)
   border-radius: 40px
   background-color: var(--cor-roxo)
-  padding: 15px 30px
-  margin-top: 107px
+  padding: clamp(12px, 2vw, 15px) clamp(20px, 3vw, 30px)
+  margin-top: clamp(60px, 8vw, 100px)
   transition: all 0.3s
   cursor: pointer
   text-decoration: none
+  width: fit-content
+  text-align: center
 
   &:hover
     box-shadow: 0 0 25px var(--cor-roxo)
+
+@media (max-width: 768px)
+  .recursos
+    padding: 0 15px 60px 15px
+
+    .cards
+      gap: 20px
+
+      .card
+        flex: 1 1 100%
+        max-width: 100%
+
+@media (max-width: 480px)
+  .recursos
+    padding: 0 10px 40px 10px
+
+    .cards
+      .card
+        min-height: 200px
 </style>
