@@ -37,6 +37,7 @@
 
 <style lang="sass" scoped>
 .recursos
+  background-color: transparent
   display: flex
   flex-direction: column
   align-items: center
@@ -154,7 +155,7 @@
   color: var(--cor-branco)
   border-radius: 40px
   background-color: var(--cor-roxo)
-  padding: clamp(12px, 2vw, 15px) clamp(20px, 3vw, 30px)
+  padding: 16px 44px
   margin-top: clamp(60px, 8vw, 100px)
   transition: all 0.3s
   cursor: pointer
@@ -179,6 +180,9 @@
 @media (max-width: 480px)
   .recursos
     padding: 0 10px 40px 10px
+
+    .botao
+      padding: 16px 20vw
 
     .cards
       .card

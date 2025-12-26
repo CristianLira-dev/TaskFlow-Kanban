@@ -8,9 +8,10 @@
     </div>
     <!-- Canvas do notebook 3D -->
     <div class="canvas" ref="canvas3d"></div>
+
+    <!-- Blush elements movidos para dentro da section -->
+    <div class="blush um"></div>
   </section>
-  <div class="blush um"></div>
-  <div class="blush dois"></div>
 </template>
 
 <script setup>
@@ -196,6 +197,8 @@ section.insano
   min-height: 100dvh
   position: relative
   overflow: hidden
+  box-sizing: border-box
+  padding-right: 0
 
   .canvas
     position: absolute
@@ -212,6 +215,7 @@ section.insano
     width: 60%
     padding: 0 0 0 180px
     z-index: 5
+    box-sizing: border-box
 
     .titulo
       font-family: var(--semibold)
@@ -228,6 +232,7 @@ section.insano
       color: var(--cor-cinza)
       line-height: 1.5
       margin: 15px 0 25px 0
+      max-width: 500px
 
     a
       font-family: var(--semibold)
@@ -237,62 +242,122 @@ section.insano
       padding: 20px 40px
       border-radius: 50px
       transition: all 0.4s
+      text-decoration: none
+      display: inline-block
 
       &:hover
         box-shadow: 0 0 25px var(--cor-roxo)
 
-.blush
-  position: absolute
-  width: 2000px
-  height: 2000px
-  border-radius: 50%
-  background: radial-gradient(circle at center, #6200EA, #6200EA00 60%)
-  z-index: 0
+  .blush
+    position: absolute
+    width: 50vw
+    height: 50vw
+    max-width: 2000px
+    max-height: 2000px
+    min-width: 800px
+    min-height: 800px
+    border-radius: 50%
+    background: radial-gradient(circle at center, #6200EA, #6200EA00 60%)
+    z-index: 0
+    pointer-events: none
 
-  &.um
-    top: -1150px
-    left: -1150px
-    opacity: 0.5
+    &.um
+      top: -25vw
+      left: -25vw
+      opacity: 0.5
 
-  &.dois
-    bottom: -1150px
-    right: -1150px
-    opacity: 0.5
+@media screen and (max-width: 1200px)
+  section.insano
+    .texto
+      padding-left: 100px
+      width: 65%
+
+    .canvas
+      width: 60%
+      height: 130%
 
 @media screen and (max-width: 1000px)
   section.insano
     flex-direction: column
+    min-height: auto
+    padding-bottom: 60px
+    overflow-x: hidden
 
     .canvas
+      position: relative
       width: 100%
-      height: 50%
-      right: 0
+      height: 380px
+      right: auto
       bottom: auto
-      top: 0
+      top: auto
       z-index: 4
+      margin-top: 40px
 
     .texto
       align-items: center
       text-align: center
       width: 100%
-      padding: 150px 30px 0 30px
+      padding: 80px 20px 0 20px
 
       .titulo
-        font-size: var(--f7)
+        font-size: clamp(var(--f5), 8vw, var(--f7))
 
       p
         font-size: var(--f3)
         max-width: 500px
+        margin-left: auto
+        margin-right: auto
 
-.blush
-  width: 1000px
-  height: 1000px
+      a
+        font-size: var(--f3)
+        padding: 15px 30px
 
-  &.um
-   top: -500px
-   left: -500px
+    .blush
+      width: 80vw
+      height: 80vw
+      min-width: 600px
+      min-height: 600px
 
-  &.dois
-    bottom: -500px
-    right: -500px
+      &.um
+        top: -40vw
+        left: -40vw
+
+      &.dois
+        bottom: -40vw
+        right: -40vw
+
+@media screen and (max-width: 768px)
+  section.insano
+    .blush
+      width: 100vw
+      height: 100vw
+      min-width: 500px
+      min-height: 500px
+
+      &.um
+        top: -50vw
+        left: -50vw
+
+      &.dois
+        bottom: -50vw
+        right: -50vw
+
+@media screen and (max-width: 480px)
+  section.insano
+    .texto
+      padding: 60px 15px 0 15px
+
+      .titulo
+        font-size: clamp(var(--f4), 7vw, var(--f6))
+
+      p
+        font-size: var(--f2)
+
+      a
+        font-size: var(--f2)
+        padding: 12px 24px
+
+    .blush
+      min-width: 400px
+      min-height: 400px
 </style>
