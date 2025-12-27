@@ -207,8 +207,7 @@
   </svg>
 
   <svg v-else-if="props.nome === 'tarefas'" viewBox="0 0 128 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <foreignObject x="-207.54" y="-248.013" width="583.433" height="583.433"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter: blur(125px); clip-path: url(#bgblur_0_154_8_clip_path); height: 100%; width: 100%"></div></foreignObject>
-    <rect data-figma-bg-blur-radius="250" x="41.097" y="20.798" width="69" height="69" rx="7.5" transform="rotate(-17 41.097 20.798)" fill="url(#paint0_linear_154_8)" stroke="#6200EA" />
+    <rect x="41.097" y="20.798" width="69" height="69" rx="7.5" transform="rotate(-17 41.097 20.798)" fill="url(#paint0_linear_154_8)" stroke="#6200EA" />
     <rect x="52.2734" y="28.4001" width="52" height="6" rx="3" transform="rotate(-17.0826 52.2734 28.4001)" fill="#D9D9D9" />
     <rect opacity="0.77" x="55.5046" y="38.9148" width="42" height="6" rx="3" transform="rotate(-17.0826 55.5046 38.9148)" fill="#D9D9D9" />
     <rect opacity="0.45" x="58.7358" y="49.4294" width="34" height="6" rx="3" transform="rotate(-17.0826 58.7358 49.4294)" fill="#D9D9D9" />
@@ -216,19 +215,18 @@
     <path d="M34.0007 77.7596L51.0991 72.5321" stroke="#6200EA" stroke-width="4" stroke-linecap="round" />
     <path d="M2.00065 67.972L36.1478 57.5322" stroke="#6200EA" stroke-width="4" stroke-linecap="round" />
     <defs>
-      <clipPath id="bgblur_0_154_8_clip_path" transform="translate(207.54 248.013)"><rect x="41.097" y="20.798" width="69" height="69" rx="7.5" transform="rotate(-17 41.097 20.798)" /></clipPath>
-      <linearGradient id="paint0_linear_154_8" x1="55.1727" y1="32.3661" x2="316.011" y2="249.668" gradientUnits="userSpaceOnUse">
+      <linearGradient id="paint0_linear_154_8" x1="55.1727" y1="32.3661" x2="316.011" y2="249.668">
         <stop stop-color="#050720" />
         <stop offset="1" stop-color="#6200EA" />
       </linearGradient>
     </defs>
   </svg>
 
-  <svg v-else-if="props.nome === 'mais'" width="27" height="30" viewBox="0 0 27 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg v-else-if="props.nome === 'mais'" viewBox="0 0 27 30" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M13.5 2L13.5 28M2 14.5L25 14.5" stroke="white" stroke-width="4" stroke-linecap="round" />
   </svg>
 
-  <svg v-else-if="props.nome === 'ajustes'" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg v-else-if="props.nome === 'ajustes'" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M1.875 3C0.837891 3 0 3.89375 0 5C0 6.10625 0.837891 7 1.875 7H6.95508C7.67578 8.76875 9.32812 10 11.25 10C13.1719 10 14.8242 8.76875 15.5449 7H28.125C29.1621 7 30 6.10625 30 5C30 3.89375 29.1621 3 28.125 3H15.5449C14.8242 1.23125 13.1719 0 11.25 0C9.32812 0 7.67578 1.23125 6.95508 3H1.875ZM1.875 13C0.837891 13 0 13.8938 0 15C0 16.1063 0.837891 17 1.875 17H16.3301C17.0508 18.7687 18.7031 20 20.625 20C22.5469 20 24.1992 18.7687 24.9199 17H28.125C29.1621 17 30 16.1063 30 15C30 13.8938 29.1621 13 28.125 13H24.9199C24.1992 11.2312 22.5469 10 20.625 10C18.7031 10 17.0508 11.2312 16.3301 13H1.875ZM1.875 23C0.837891 23 0 23.8937 0 25C0 26.1063 0.837891 27 1.875 27H5.08008C5.80078 28.7687 7.45312 30 9.375 30C11.2969 30 12.9492 28.7687 13.6699 27H28.125C29.1621 27 30 26.1063 30 25C30 23.8937 29.1621 23 28.125 23H13.6699C12.9492 21.2313 11.2969 20 9.375 20C7.45312 20 5.80078 21.2313 5.08008 23H1.875Z" fill="white" />
   </svg>
 </template>
