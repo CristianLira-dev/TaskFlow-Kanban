@@ -11,6 +11,7 @@
 
     <!-- Blush elements movidos para dentro da section -->
     <div class="blush um"></div>
+    <div class="blush dois"></div>
   </section>
 </template>
 
@@ -196,7 +197,6 @@ section.insano
   width: 100%
   min-height: 100dvh
   position: relative
-  overflow: hidden
   box-sizing: border-box
   padding-right: 0
 
@@ -266,6 +266,11 @@ section.insano
       left: -25vw
       opacity: 0.5
 
+    &.dois
+      bottom: -25vw
+      right: -25vw
+      opacity: 0.5
+
 @media screen and (max-width: 1200px)
   section.insano
     .texto
@@ -280,8 +285,7 @@ section.insano
   section.insano
     flex-direction: column
     min-height: auto
-    padding-bottom: 60px
-    overflow-x: hidden
+    padding: 60px 0 60px 0
 
     .canvas
       position: relative

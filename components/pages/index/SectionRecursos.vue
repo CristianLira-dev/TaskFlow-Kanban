@@ -33,7 +33,9 @@
   </section>
 </template>
 
-<script setup></script>
+<script setup>
+import { defineNuxtLink } from 'nuxt/app'
+</script>
 
 <style lang="sass" scoped>
 .recursos
@@ -45,6 +47,7 @@
   width: 100%
   padding: 0 20px 100px 20px
   box-sizing: border-box
+  z-index: 10
 
   .text
     text-align: center
