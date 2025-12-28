@@ -32,7 +32,14 @@ const state = reactive({
 function scrollParaSection(seletor) {
   const elemento = document.querySelector(seletor)
   if (elemento) {
-    elemento.scrollIntoView({ behavior: 'smooth' })
+    // calcula offset com base na altura do nav para ajustar posição final
+    const navEl = document.querySelector('nav')
+    const navHeight = navEl ? navEl.offsetHeight : 70
+    const extraOffset = 110 // ajuste fino (px) — altere se necessário
+    const offset = navHeight + extraOffset
+
+    const top = elemento.getBoundingClientRect().top + window.pageYOffset - offset
+    window.scrollTo({ top, behavior: 'smooth' })
     state.menu = false
   }
 }
