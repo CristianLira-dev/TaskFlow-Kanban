@@ -35,9 +35,15 @@ function scrollParaSection(seletor) {
     // calcula offset com base na altura do nav para ajustar posição final
     const navEl = document.querySelector('nav')
     const navHeight = navEl ? navEl.offsetHeight : 70
-    const extraOffset = 110 // ajuste fino (px) — altere se necessário
-    const offset = navHeight + extraOffset
+    let extraOffset = 110 // ajuste fino (px) — altere se necessário
 
+    const tamanhoTela = window.innerWidth
+    if (tamanhoTela <= 1200) {
+      // em telas menores o nav pode ocupar mais espaço quando aberto
+      extraOffset = -200
+    }
+
+    const offset = navHeight + extraOffset
     const top = elemento.getBoundingClientRect().top + window.pageYOffset - offset
     window.scrollTo({ top, behavior: 'smooth' })
     state.menu = false

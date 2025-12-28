@@ -39,8 +39,6 @@ const anoAtual = new Intl.DateTimeFormat('pt-BR', {
   year: 'numeric',
   timeZone: 'America/Sao_Paulo'
 }).format(new Date())
-
-console.table(anoAtual)
 </script>
 
 <style scoped lang="sass">
@@ -191,6 +189,7 @@ footer
           width: 100%
           max-width: 900px
           height: auto
+          min-height: 60px
           aspect-ratio: 3 / 1
 
       .bottom-section
