@@ -165,6 +165,7 @@ import { defineNuxtLink } from 'nuxt/app'
   text-decoration: none
   width: fit-content
   text-align: center
+  z-index: 5
 
   &:hover
     box-shadow: 0 0 25px var(--cor-roxo)
