@@ -116,6 +116,7 @@ onUnmounted(() => {
   justify-content: center
   width: 100%
   padding: 0 0 100px 0
+  margin: 0 0 80px 0
   box-sizing: border-box
   z-index: 10
   position: relative
