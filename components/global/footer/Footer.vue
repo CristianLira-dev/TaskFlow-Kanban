@@ -39,6 +39,8 @@ const anoAtual = new Intl.DateTimeFormat('pt-BR', {
   year: 'numeric',
   timeZone: 'America/Sao_Paulo'
 }).format(new Date())
+
+console.table(anoAtual)
 </script>
 
 <style scoped lang="sass">
@@ -53,6 +55,7 @@ footer
   overflow: hidden
   padding: 60px 20px 40px
   box-sizing: border-box
+  background: linear-gradient(130deg, var(--cor-azul-forte) 0%, var(--cor-roxo) 900%)
   border-top: solid 1px var(--cor-roxo)
   box-shadow: var(--cor-roxo) 0px 40px 180px 16px, rgba(0,0,0,0.18) 0px 10px 30px 0px;
 
@@ -226,7 +229,7 @@ footer
           font-size: clamp(4rem, 15vw, 8rem)
 
       .bottom-section
-        flex-direction: column
+        flex-direction: column-reverse
         gap: 20px
 
 // Responsividade Mobile (< 768px)
@@ -258,6 +261,7 @@ footer
       .bottom-section
         gap: 18px
         padding-top: 25px
+        flex-direction: column-reverse
 
         .links
           flex-direction: column

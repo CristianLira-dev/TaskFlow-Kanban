@@ -1,5 +1,5 @@
 <template>
-  <section class="insano">
+  <section class="hero">
     <div class="texto">
       <h1 class="titulo um">Menos bagunça,</h1>
       <h1 class="titulo dois">Mais progresso.</h1>
@@ -18,6 +18,7 @@
 <script setup>
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { ref, onMounted } from 'vue'
 
 const canvas3d = ref(null)
 
@@ -38,7 +39,8 @@ onMounted(() => {
    * =============================== */
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
-    alpha: true
+    alpha: true,
+    powerPreference: 'low-power'
   })
   canvas3d.value.appendChild(renderer.domElement)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -53,14 +55,22 @@ onMounted(() => {
   scene.add(dirLight)
 
   /* ===============================
-   * VIDEO
+   * TEXTURAS
+   * =============================== */
+  const textureLoader = new THREE.TextureLoader()
+  const fallbackTexture = textureLoader.load('/images/basquetelife.jpg')
+  fallbackTexture.colorSpace = THREE.SRGBColorSpace
+
+  /* ===============================
+   * VÍDEO (iOS SAFE)
    * =============================== */
   const video = document.createElement('video')
   video.src = '/videos/video_fofo.mp4'
   video.muted = true
   video.loop = true
   video.playsInline = true
-  video.autoplay = true
+  video.setAttribute('webkit-playsinline', '')
+  video.preload = 'auto'
 
   const videoTexture = new THREE.VideoTexture(video)
   videoTexture.colorSpace = THREE.SRGBColorSpace
@@ -70,16 +80,26 @@ onMounted(() => {
    * VARIÁVEIS
    * =============================== */
   const gltfLoader = new GLTFLoader()
-
   let macbookModel = null
   let screenLid = null
   let screenMesh = null
-
-  let openProgress = 0
-  const targetAngle = -1.4
+  let renderLoopActive = false
 
   /* ===============================
-   * RESPONSIVO (JS)
+   * RENDER CONTROLADO (CPU LOW)
+   * =============================== */
+  function renderOnce() {
+    renderer.render(scene, camera)
+  }
+
+  function renderVideo() {
+    if (!renderLoopActive) return
+    renderer.render(scene, camera)
+    requestAnimationFrame(renderVideo)
+  }
+
+  /* ===============================
+   * RESPONSIVO
    * =============================== */
   function updateResponsive() {
     if (!canvas3d.value) return
@@ -87,12 +107,10 @@ onMounted(() => {
     const isMobile = window.innerWidth < 1000
 
     if (isMobile) {
-      // canvas abaixo do texto
       canvas3d.value.style.position = 'relative'
       canvas3d.value.style.width = '100%'
       canvas3d.value.style.height = '380px'
       canvas3d.value.style.padding = '0 20px'
-
       camera.position.set(0, 0.15, 3)
 
       if (macbookModel) {
@@ -101,13 +119,10 @@ onMounted(() => {
         macbookModel.rotation.y = -0.5
       }
     } else {
-      // desktop
       canvas3d.value.style.position = 'absolute'
       canvas3d.value.style.width = '55%'
       canvas3d.value.style.height = '140%'
       canvas3d.value.style.padding = '0'
-      canvas3d.value.style.marginTop = '0'
-
       camera.position.set(0, 0.2, 4)
 
       if (macbookModel) {
@@ -119,10 +134,11 @@ onMounted(() => {
 
     const width = canvas3d.value.clientWidth
     const height = canvas3d.value.clientHeight
-
     renderer.setSize(width, height)
     camera.aspect = width / height
     camera.updateProjectionMatrix()
+
+    renderOnce()
   }
 
   /* ===============================
@@ -131,10 +147,11 @@ onMounted(() => {
   gltfLoader.load('/images/invert_macbook_mockup.glb', (gltf) => {
     macbookModel = gltf.scene
 
-    // tampa
+    // Tampa
     screenLid = macbookModel.getObjectByName('tracking_node_placeholder_69')
+    if (screenLid) screenLid.rotation.x = -1.4
 
-    // tela
+    // Tela
     screenMesh = macbookModel.getObjectByName('Object_123')
 
     // base / teclado
@@ -145,41 +162,40 @@ onMounted(() => {
       floor.rotation.z = 24.91
     }
 
-    // aplica vídeo na tela
     if (screenMesh && screenMesh.isMesh) {
       screenMesh.material = new THREE.MeshStandardMaterial({
-        map: videoTexture,
-        emissiveMap: videoTexture,
+        map: fallbackTexture,
+        emissiveMap: fallbackTexture,
         emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.6,
+        emissiveIntensity: 0.4,
         roughness: 0.5,
         metalness: 0
       })
-
       screenMesh.position.z += 0.002
     }
 
     scene.add(macbookModel)
-
-    video.play()
     updateResponsive()
-    animate()
+
+    /* ===============================
+     * AUTOPLAY + FALLBACK
+     * =============================== */
+    video
+      .play()
+      .then(() => {
+        if (screenMesh) {
+          screenMesh.material.map = videoTexture
+          screenMesh.material.emissiveMap = videoTexture
+          screenMesh.material.needsUpdate = true
+        }
+        renderLoopActive = true
+        renderVideo()
+      })
+      .catch(() => {
+        console.warn('Autoplay bloqueado — usando fallback')
+        renderOnce()
+      })
   })
-
-  /* ===============================
-   * ANIMAÇÃO
-   * =============================== */
-  function animate() {
-    requestAnimationFrame(animate)
-
-    if (screenLid && openProgress < 1) {
-      openProgress += 0.02
-      const eased = 1 - Math.pow(1 - openProgress, 3)
-      screenLid.rotation.x = targetAngle * eased
-    }
-
-    renderer.render(scene, camera)
-  }
 
   /* ===============================
    * RESIZE
@@ -189,7 +205,7 @@ onMounted(() => {
 </script>
 
 <style lang="sass" scoped>
-section.insano
+section.hero
   display: flex
   flex-direction: row
   align-items: center
@@ -272,7 +288,7 @@ section.insano
       opacity: 0.5
 
 @media screen and (max-width: 1200px)
-  section.insano
+  section.hero
     .texto
       padding-left: 100px
       width: 65%
@@ -282,7 +298,7 @@ section.insano
       height: 130%
 
 @media screen and (max-width: 1000px)
-  section.insano
+  section.hero
     flex-direction: column
     min-height: auto
     padding: 60px 0 60px 0
@@ -304,7 +320,7 @@ section.insano
       padding: 80px 20px 0 20px
 
       .titulo
-        font-size: clamp(var(--f5), 8vw, var(--f7))
+        font-size:  var(--f10)
 
       p
         font-size: var(--f3)
@@ -331,7 +347,7 @@ section.insano
         right: -40vw
 
 @media screen and (max-width: 768px)
-  section.insano
+  section.hero
     .blush
       width: 100vw
       height: 100vw
@@ -347,12 +363,12 @@ section.insano
         right: -50vw
 
 @media screen and (max-width: 480px)
-  section.insano
+  section.hero
     .texto
       padding: 60px 15px 0 15px
 
       .titulo
-        font-size: clamp(var(--f4), 7vw, var(--f6))
+        font-size: var(--f7)
 
       p
         font-size: var(--f2)
