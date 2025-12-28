@@ -1,1 +1,51 @@
-//fazer JSON DEPOIMENTOS
+[
+  {
+    "id": 1,
+    "imagem": "/images/caio-villela.jpg",
+    "avaliacao": 5,
+    "nome": "Caio Villela",
+    "depoimento": "Zero curva de aprendizado. Cadastrei meu time de manhã e à tarde todos já estavam usando fluentemente."
+  },
+  {
+    "id": 2,
+    "imagem": "/images/rodrigo-ferreira.jpg",
+    "avaliacao": 5,
+    "nome": "Rodrigo Ferreira",
+    "depoimento": "A interface é tão limpa que não atrapalha minha criatividade. Adoro como posso arrastar cards e anexar layouts sem burocracia."
+  },
+  {
+    "id": 3,
+    "imagem": "/images/lucas-ferraz.jpg",
+    "avaliacao": 5,
+    "nome": "Lucas Ferraz",
+    "depoimento": "Finalmente um app que não complica. Arrasto minhas tarefas e sinto que tenho controle total do meu dia. Simples e lindo."
+  },
+  {
+    "id": 4,
+    "imagem": "/images/ronaldo-albuquerque.jpg",
+    "avaliacao": 5,
+    "nome": "Ronaldo Albuquerque",
+    "depoimento": "Minha cabeça é um caos, mas meu TaskFlow é impecável. A simplicidade de criar um card e jogar para 'Fazendo' me impede de procrastinar."
+  },
+  {
+    "id": 5,
+    "imagem": "/images/roberto-siqueira.jpg",
+    "avaliacao": 5,
+    "nome": "Roberto Siqueira",
+    "depoimento": "Eu usava papel e perdia tudo. Agora bato o olho nas colunas e sei exatamente o que está travado e o que já foi feito. Sem botões inúteis, só funciona."
+  },
+  {
+    "id": 6,
+    "imagem": "/images/bruno-pereira.jpg",
+    "avaliacao": 5,
+    "nome": "Bruno Pereira",
+    "depoimento": "Cansado de apps com 1000 funções que nunca uso. O TaskFlow faz uma coisa só e faz com perfeição: organiza meu fluxo. A interface escura é um descanso para os olhos.."
+  },
+  {
+    "id": 7,
+    "imagem": "/images/henrique-silva.jpg",
+    "avaliacao": 5,
+    "nome": "Henrique Silva",
+    "depoimento": "Dividi minhas matérias nas colunas. Ver os cards se movendo para a coluna 'Concluída' me dá uma dose de dopamina real. Diminuiu muito minha ansiedade de estudos."
+  }
+]

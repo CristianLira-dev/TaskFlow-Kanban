@@ -95,7 +95,7 @@ import { defineNuxtLink } from 'nuxt/app'
       min-width: 200px
       flex: 1 1 250px
       min-height: 237px
-      border: solid 0.5px var(--cor-roxo)
+      border: solid 1px var(--cor-roxo)
       padding: clamp(20px, 3vw, 25px) clamp(15px, 2vw, 20px)
       background: linear-gradient(130deg, var(--cor-azul-forte) 0%, var(--cor-roxo) 370%)
       border-radius: 24px
