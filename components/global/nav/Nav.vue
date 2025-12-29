@@ -10,8 +10,8 @@
     </div>
 
     <div class="buttons">
-      <NuxtLink to="login" class="cadastro">Cadastrar</NuxtLink>
-      <NuxtLink to="login" class="entrar">Entrar</NuxtLink>
+      <a @click="loginCadastro()" class="cadastro">Cadastrar</a>
+      <a @click="loginEntrar()" class="entrar">Entrar</a>
     </div>
 
     <button class="menu" @click="state.menu = !state.menu" :class="{ aberto: state.menu }">
@@ -24,10 +24,24 @@
 <script setup>
 import { defineNuxtLink } from 'nuxt/app'
 import Svgs from '../svgs/Svgs.vue'
+import { reactive } from 'vue'
+import { useStoreLogin } from '../../../stores/useStoreLogin.js'
 
 const state = reactive({
   menu: false
 })
+
+const storeLogin = useStoreLogin()
+
+function loginCadastro() {
+  storeLogin.setClass('sign-up-js')
+  navigateTo('/login')
+}
+
+function loginEntrar() {
+  storeLogin.setClass('sign-in-js')
+  navigateTo('/login')
+}
 
 function scrollParaSection(seletor) {
   const elemento = document.querySelector(seletor)

@@ -1,5 +1,5 @@
 <template>
-  <section class="autenticacao">
+  <section :class="['autenticacao', storeLogin.class]">
     <div class="container">
       <div class="content first-content">
         <div class="first-column">
@@ -10,7 +10,7 @@
         <div class="second-column">
           <h2 class="title title-second">Criar Conta</h2>
           <p class="description description-second">Coloque seu suas credenciais para efetuar o cadastro</p>
-          <form class="form">
+          <form class="form" ref="form" @submit.prevent="onSubmitCadastro">
             <div class="input-wrapper">
               <label for="nome" class="floating-label">Nome</label>
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -102,6 +102,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useStoreLogin } from '../../../stores/useStoreLogin.js'
+
+const storeLogin = useStoreLogin()
+
+onMounted(() => {
+  storeLogin.inicializarClass()
+})
 
 const mostrarSenha = ref(false)
 const mostrarSenhaCadastro = ref(false)
@@ -114,7 +121,7 @@ onMounted(() => {
   if (btnSignin) {
     btnSignin.addEventListener('click', () => {
       if (autenticacao) {
-        autenticacao.className = 'autenticacao sign-in-js'
+        storeLogin.setClass('sign-in-js')
       }
     })
   }
@@ -122,11 +129,28 @@ onMounted(() => {
   if (btnSignup) {
     btnSignup.addEventListener('click', () => {
       if (autenticacao) {
-        autenticacao.className = 'autenticacao sign-up-js'
+        storeLogin.setClass('sign-up-js')
       }
     })
   }
 })
+
+function onSubmitCadastro() {
+  const form = document.querySelector('.form')
+  const nome = form.nome.value
+  const email = form.emailCadastro.value
+  const senha = form.senhaCadastro.value
+
+  const cadastroData = {
+    //nova sinxate que permite diminuir a escrita
+    //nome: nome,
+    //por
+    //nome,
+    nome,
+    email,
+    senha
+  }
+}
 </script>
 
 <style lang="sass" scoped>
@@ -562,5 +586,5 @@ input:-webkit-autofill
 
 @media screen and (max-width: 425px)
   .form
-    width: 100%
+    width: 90%
 </style>
