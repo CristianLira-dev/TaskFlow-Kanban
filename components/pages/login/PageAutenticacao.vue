@@ -1,5 +1,7 @@
 <template>
   <section :class="['autenticacao', storeLogin.class]">
+    <ModalAutenticacao :show="modalAberto" :title="tituloModal" :message="mensagemModal" @close="modalAberto = false" />
+
     <div class="container">
       <div class="content first-content">
         <div class="first-column">
@@ -9,15 +11,16 @@
         </div>
         <div class="second-column">
           <h2 class="title title-second">Criar Conta</h2>
-          <p class="description description-second">Coloque seu suas credenciais para efetuar o cadastro</p>
-          <form class="form" ref="form" @submit.prevent="onSubmitCadastro">
+          <p class="description description-second">Coloque suas credenciais para efetuar o cadastro</p>
+          <form class="form" ref="formCadastro" id="formCadastro" @submit.prevent="onSubmitCadastro">
             <div class="input-wrapper">
               <label for="nome" class="floating-label">Nome</label>
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <input type="text" name="nome" id="nome" placeholder="" />
+              <input v-model="cadastroData.nome" type="text" name="nome" id="nome" placeholder="" />
+              <p class="errorMsg" id="ErrorMsgNome">{{ errosCadastro.nome }}</p>
             </div>
 
             <div class="input-wrapper">
@@ -26,7 +29,8 @@
                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
-              <input type="email" name="emailCadastro" id="emailCadastro" placeholder=" " />
+              <input v-model="cadastroData.email" type="text" name="emailCadastro" id="emailCadastro" />
+              <p class="errorMsg" id="ErrorMsgEmailCadastro">{{ errosCadastro.email }}</p>
             </div>
 
             <div class="input-wrapper">
@@ -35,8 +39,9 @@
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <input :type="mostrarSenhaCadastro ? 'text' : 'password'" name="senhaCadastro" id="senhaCadastro" placeholder=" " />
-              <button type="button" class="toggle-password" @click="mostrarSenhaCadastro = !mostrarSenhaCadastro">
+              <input v-model="cadastroData.senha" :type="mostrarSenhaCadastro ? 'text' : 'password'" name="senhaCadastro" id="senhaCadastro" />
+              <p class="errorMsg" id="ErrorMsgSenhaCadastro">{{ errosCadastro.senha }}</p>
+              <button type="button" class="toggle-password" id="toggle-password-cadastro" @click="mostrarSenhaCadastro = !mostrarSenhaCadastro">
                 <svg v-if="!mostrarSenhaCadastro" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -62,14 +67,15 @@
         <div class="second-column">
           <h2 class="title title-second">Bem Vindo de Volta!</h2>
           <p class="description description-second">Use seu email para efetuar o login</p>
-          <form class="form">
+          <form class="form" ref="formLogin" id="formLogin" @submit.prevent="onSubmitLogin()">
             <div class="input-wrapper">
               <label for="email" class="floating-label">Email</label>
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
               </svg>
-              <input type="email" name="email" id="email" placeholder="" />
+              <input v-model="loginData.email" type="text" name="email" id="email" placeholder="" />
+              <p class="errorMsg" id="ErrorMsgEmailLogin">{{ errosLogin.email }}</p>
             </div>
 
             <div class="input-wrapper">
@@ -78,8 +84,9 @@
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
-              <input :type="mostrarSenha ? 'text' : 'password'" name="senha" id="senha" placeholder=" " />
-              <button type="button" class="toggle-password" @click="mostrarSenha = !mostrarSenha">
+              <input v-model="loginData.senha" :type="mostrarSenha ? 'text' : 'password'" name="senha" id="senha" />
+              <p class="errorMsg" id="ErrorMsgSenhaLogin">{{ errosLogin.senha }}</p>
+              <button type="button" class="toggle-password" id="toggle-password-login" @click="mostrarSenha = !mostrarSenha">
                 <svg v-if="!mostrarSenha" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -101,55 +108,164 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { useStoreLogin } from '../../../stores/useStoreLogin.js'
+import ModalAutenticacao from '../../global/modalAutenticacao/ModalAutenticacao.vue'
+
+const formCadastro = ref(null)
+const formLogin = ref(null)
+
+const cadastroData = reactive({
+  nome: '',
+  email: '',
+  senha: ''
+})
+
+const loginData = reactive({
+  email: '',
+  senha: ''
+})
+
+const errosCadastro = reactive({
+  nome: '',
+  email: '',
+  senha: ''
+})
+
+const errosLogin = reactive({
+  email: '',
+  senha: ''
+})
 
 const storeLogin = useStoreLogin()
 
-onMounted(() => {
-  storeLogin.inicializarClass()
-})
+const modalAberto = ref(false)
+const mensagemModal = ref('')
+const tituloModal = ref('')
 
 const mostrarSenha = ref(false)
 const mostrarSenhaCadastro = ref(false)
 
 onMounted(() => {
+  storeLogin.inicializarClass()
+
   const btnSignin = document.querySelector('#signin')
   const btnSignup = document.querySelector('#signup')
-  const autenticacao = document.querySelector('.autenticacao')
 
-  if (btnSignin) {
-    btnSignin.addEventListener('click', () => {
-      if (autenticacao) {
-        storeLogin.setClass('sign-in-js')
-      }
-    })
-  }
+  btnSignin?.addEventListener('click', () => {
+    storeLogin.setClass('sign-in-js')
+  })
 
-  if (btnSignup) {
-    btnSignup.addEventListener('click', () => {
-      if (autenticacao) {
-        storeLogin.setClass('sign-up-js')
-      }
-    })
-  }
+  btnSignup?.addEventListener('click', () => {
+    storeLogin.setClass('sign-up-js')
+  })
 })
 
 function onSubmitCadastro() {
-  const form = document.querySelector('.form')
-  const nome = form.nome.value
-  const email = form.emailCadastro.value
-  const senha = form.senhaCadastro.value
+  const emailRegex = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/
+  const olhoSenha = document.getElementById('toggle-password-cadastro')
 
-  const cadastroData = {
-    //nova sinxate que permite diminuir a escrita
-    //nome: nome,
-    //por
-    //nome,
-    nome,
-    email,
-    senha
+  let temErro = false
+
+  //Validação campo NOME
+  if (!cadastroData.nome) {
+    errosCadastro.nome = 'O campo nome é obrigatório.'
+    temErro = true
+  } else if (cadastroData.nome.indexOf(' ') === -1) {
+    errosCadastro.nome = 'Digite seu Nome Completo'
+    temErro = true
+  } else {
+    errosCadastro.nome = ''
   }
+
+  // Validação campo EMAIL
+  if (!cadastroData.email) {
+    errosCadastro.email = 'O campo email é obrigatório.'
+    temErro = true
+  } else if (!emailRegex.test(cadastroData.email)) {
+    // Validação de formato
+    errosCadastro.email = 'Digite um e-mail válido.'
+    temErro = true
+  } else {
+    errosCadastro.email = ''
+  }
+
+  // Validação campo SENHA
+  if (!cadastroData.senha) {
+    errosCadastro.senha = 'O campo senha é obrigatório.'
+    olhoSenha.style.top = '25%' // Ajusta posição no erro
+    temErro = true
+  } else if (cadastroData.senha.length < 8) {
+    errosCadastro.senha = 'A senha deve ter pelo menos 8 caracteres.'
+    olhoSenha.style.top = '25%' // Ajusta posição no erro
+    temErro = true
+  } else {
+    errosCadastro.senha = ''
+  }
+
+  // Se tiver qualquer erro, para a função aqui
+  if (temErro) {
+    return
+  }
+
+  modalAberto.value = true
+  tituloModal.value = 'Sucesso no Cadastro'
+  mensagemModal.value = 'Cadastro realizado com sucesso!'
+  storeLogin.setClass('sign-in-js')
+
+  Object.assign(cadastroData, {
+    nome: '',
+    email: '',
+    senha: ''
+  })
+}
+
+function onSubmitLogin() {
+  const emailRegex = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/
+  const olhoSenha = document.getElementById('toggle-password-login')
+
+  let temErro = false
+
+  // Validação campo EMAIL
+  if (!loginData.email) {
+    errosLogin.email = 'O campo email é obrigatório.'
+    temErro = true
+  } else if (!emailRegex.test(loginData.email)) {
+    errosLogin.email = 'Digite um e-mail válido.'
+    temErro = true
+  } else {
+    errosLogin.email = ''
+  }
+
+  // Validação campo SENHA
+  if (!loginData.senha) {
+    errosLogin.senha = 'O campo senha é obrigatório.'
+    olhoSenha.style.top = '25%'
+    temErro = true
+  } else if (loginData.senha.length < 8) {
+    errosLogin.senha = 'A senha deve ter pelo menos 8 caracteres.'
+    olhoSenha.style.top = '25%'
+    temErro = true
+  } else {
+    errosLogin.senha = ''
+  }
+
+  // Se tiver qualquer erro, para a função aqui
+  if (temErro) {
+    return
+  }
+
+  modalAberto.value = true
+  tituloModal.value = 'Sucesso no Login'
+  mensagemModal.value = 'Login realizado com sucesso!'
+  Object.assign(loginData, {
+    email: '',
+    senha: ''
+  })
+  setTimeout(() => {
+    // storeLogin.setClass('LoginSucesso-js')
+    navigateTo('/sistema')
+  }, 1000)
 }
 </script>
 
@@ -272,6 +388,11 @@ function onSubmitCadastro() {
   position: relative
   width: 100%
 
+  .errorMsg
+    color: var(--cor-vermelho)
+    font-size: var(--f1)
+    margin: 5px 0 -5px 10px
+
 
   input
     height: 56px
@@ -350,7 +471,7 @@ input:-webkit-autofill
   cursor: pointer
   text-decoration: underline
   font-size: var(--f1)
-  margin: 15px 0
+  margin: 15px 0 0 0
   text-align: center
 
   &::first-letter
