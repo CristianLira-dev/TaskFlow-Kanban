@@ -34,7 +34,9 @@ O TaskFlow foi criado como um projeto de portfólio com o objetivo de demonstrar
 
 ### Front-end
 - HTML5
-- CSS3
+- SASS
+- Vue.js
+- Nuxt.js
 - JavaScript (ES6+)
 - Drag & Drop API
 
