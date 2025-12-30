@@ -39,7 +39,7 @@
             <h3>{{ usuario.nome }}</h3>
             <p>{{ usuario.email }}</p>
           </div>
-          <button class="botao-config">
+          <button class="botao-config" @click="modalSettingsOpen = true">
             <Svgs nome="settings" />
           </button>
         </div>
@@ -71,11 +71,15 @@
       <!-- Área principal de tarefas -->
       <slot></slot>
     </div>
+    <ModalSettings :show="modalSettingsOpen" :usuario="usuario" @close="modalSettingsOpen = false" @save="onSaveSettings" />
+    <ModalAutenticacao class="modalSucessSettings" :show="modalAutenticacaoOpen" :title="tituloModal" :message="mensagemModal" @close="modalAutenticacaoOpen = false" />
   </section>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import ModalSettings from '../../modalSettings/ModalSettings.vue'
+import ModalAutenticacao from '../../global/modalAutenticacao/ModalAutenticacao.vue'
 
 const isCollapsed = ref(false)
 
@@ -96,6 +100,22 @@ const toggleColuna = () => {
 const selectPerfil = (nome) => {
   selectedPerfil.value = nome
 }
+
+const modalSettingsOpen = ref(false)
+
+// estado do modal de sucesso (ModalAutenticacao)
+const modalAutenticacaoOpen = ref(false)
+const mensagemModal = ref('')
+
+const onSaveSettings = (dados) => {
+  // Atualiza os dados do usuário com os valores do modal
+  usuario.value = { ...usuario.value, ...dados }
+  modalSettingsOpen.value = false
+
+  // abrir modal de sucesso
+  mensagemModal.value = 'Configurações salvas com sucesso!'
+  modalAutenticacaoOpen.value = true
+}
 </script>
 
 <style lang="sass" scoped>
@@ -104,6 +124,9 @@ const selectPerfil = (nome) => {
   height: 100dvh
   transition: all 0.3s ease
   background-color: var(--cor-escuro-3)
+
+  .modalSucessSettings
+    margin: 0 0 0 20px
 
   &.coluna-recolhida
     .coluna-perfil

@@ -141,7 +141,6 @@ const storeLogin = useStoreLogin()
 
 const modalAberto = ref(false)
 const mensagemModal = ref('')
-const tituloModal = ref('')
 
 const mostrarSenha = ref(false)
 const mostrarSenhaCadastro = ref(false)
@@ -209,7 +208,6 @@ function onSubmitCadastro() {
   }
 
   modalAberto.value = true
-  tituloModal.value = 'Sucesso no Cadastro'
   mensagemModal.value = 'Cadastro realizado com sucesso!'
   storeLogin.setClass('sign-in-js')
 
@@ -256,7 +254,6 @@ function onSubmitLogin() {
   }
 
   modalAberto.value = true
-  tituloModal.value = 'Sucesso no Login'
   mensagemModal.value = 'Login realizado com sucesso!'
   Object.assign(loginData, {
     email: '',
