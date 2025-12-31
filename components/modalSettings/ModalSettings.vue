@@ -46,7 +46,7 @@
 
 <script setup>
 import { reactive, watch, ref } from 'vue'
-import ModalAutenticacao from '../global/modalAutenticacao/modalAutenticacao.vue'
+import ModalAutenticacao from '../global/modalAutenticacao/ModalAutenticacao.vue'
 
 const props = defineProps({
   show: { type: Boolean, required: true },
