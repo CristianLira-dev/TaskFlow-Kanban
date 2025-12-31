@@ -4,12 +4,12 @@
 
     <div class="container">
       <div class="content first-content">
-        <div class="first-column">
+        <div class="first-column" id="first-column-cadastro">
           <h2 class="title title-primary">Já Possui um Conta?</h2>
           <p class="description description-primary">Faça seu Login no botão abaixo</p>
           <button id="signin" class="btn btn-primary">Entrar</button>
         </div>
-        <div class="second-column">
+        <div class="second-column" id="second-column-cadastro">
           <h2 class="title title-second">Criar Conta</h2>
           <p class="description description-second">Coloque suas credenciais para efetuar o cadastro</p>
           <form class="form" ref="formCadastro" id="formCadastro" @submit.prevent="onSubmitCadastro">
@@ -377,7 +377,7 @@ function onSubmitLogin() {
   font-family: var(--light)
   display: flex
   flex-direction: column
-  margin: 20px 0 0 0
+  margin: 10px 0 0 0
   width: 55%
   gap: 20px
 
@@ -468,7 +468,7 @@ input:-webkit-autofill
   cursor: pointer
   text-decoration: underline
   font-size: var(--f1)
-  margin: 15px 0 0 0
+  margin: 0
   text-align: center
 
   &::first-letter
@@ -699,8 +699,17 @@ input:-webkit-autofill
       height: 40%
 
 @media screen and (max-width: 740px)
-  .form
-    width: 50%
+  .content
+    border-radius: 0px
+
+    #first-column-cadastro
+      margin-top: 25px
+    .form
+      width: 80%
+
+    #second-column-cadastro
+      padding: 130px 0 0 0
+
 
 @media screen and (max-width: 425px)
   .form
