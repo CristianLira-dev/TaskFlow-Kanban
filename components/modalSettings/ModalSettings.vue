@@ -46,7 +46,7 @@
 
 <script setup>
 import { reactive, watch, ref } from 'vue'
-import ModalAutenticacao from '../global/modalAutenticacao/ModalAutenticacao.vue'
+import ModalAutenticacao from '../global/modalAutenticacao/modalAutenticacao.vue'
 
 const props = defineProps({
   show: { type: Boolean, required: true },
@@ -250,6 +250,10 @@ const overlayClick = () => {
   font-size: 26px
   cursor: pointer
   z-index: 1310
+  transition: all 0.3s
+
+  &:hover
+    color: var(--cor-vermelho)
 
 .lightbox-content
   max-width: 96%
