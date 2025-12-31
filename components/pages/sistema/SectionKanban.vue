@@ -6,7 +6,6 @@
         <div v-for="column in kanbanStore.columns" :key="column.id" class="coluna" :class="{ 'arrastando-sobre': column.id === dragOverColumn }" @dragover.prevent="handleDragOver(column.id)" @dragleave="handleDragLeave" @drop="handleDrop(column.id)">
           <div class="coluna-cabecalho">
             <div class="coluna-titulo-wrapper">
-              <Svgs :nome="coluna.icon" />
               <input v-model="column.title" type="text" class="coluna-titulo-input" @focus="handleTitleFocus(column)" @blur="handleTitleBlur(column)" @keyup.enter="$event.target.blur()" />
             </div>
             <button class="btn-excluir-coluna" @click="kanbanStore.removerColuna(column.id)" title="Excluir coluna" v-if="kanbanStore.columns.length > 1">

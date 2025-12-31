@@ -107,10 +107,37 @@
 
 <script setup>
 import { reactive, ref, watch, computed } from 'vue'
-import { kanbanIcons } from ''
+import { kanbanIcons } from '../../pages/sistema/icons/kanbanIcons.js'
 
+// props / emits
+const props = defineProps({
+  show: { type: Boolean, required: true }
+})
+const emit = defineEmits(['close', 'save'])
+
+// state principal
+const form = reactive({
+  nome: '',
+  cor: '#6d28d9',
+  icon: null
+})
+
+// erros
+const erros = reactive({
+  nome: '',
+  cor: '',
+  icon: ''
+})
+
+// controles de UI
+const showColorPicker = ref(false)
+const showIconPicker = ref(false)
 const iconSearch = ref('')
 
+// paleta de cores
+const colorPalette = ['#6d28d9', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4', '#8b5cf6', '#f97316', '#14b8a6']
+
+// ícones filtrados (usando kanbanIcons)
 const filteredIcons = computed(() => {
   if (!iconSearch.value) return kanbanIcons
 
@@ -118,43 +145,7 @@ const filteredIcons = computed(() => {
   return kanbanIcons.filter((icon) => icon.label.toLowerCase().includes(search))
 })
 
-const selectIcon = (id) => {
-  form.icon = id
-  showIconPicker.value = false
-}
-
-const props = defineProps({
-  show: { type: Boolean, required: true }
-})
-const emit = defineEmits(['close', 'save'])
-
-const form = reactive({ nome: '', cor: '#6d28d9', icon: null })
-const erros = reactive({ nome: '' })
-
-const showColorPicker = ref(false)
-const showIconPicker = ref(false)
-const iconSearch = ref('')
-
-const colorPalette = [
-  '#6d28d9', // Roxo
-  '#3b82f6', // Azul
-  '#10b981', // Verde
-  '#f59e0b', // Amarelo
-  '#ef4444', // Vermelho
-  '#ec4899', // Rosa
-  '#06b6d4', // Ciano
-  '#8b5cf6', // Violeta
-  '#f97316', // Laranja
-  '#14b8a6' // Turquesa
-]
-
-const allIcons = Array.from({ length: 15 }, (_, i) => i + 1)
-
-const filteredIcons = computed(() => {
-  if (!iconSearch.value) return allIcons
-  return allIcons.filter((n) => n.toString().includes(iconSearch.value) || `Ícone ${n}`.toLowerCase().includes(iconSearch.value.toLowerCase()))
-})
-
+// watchers
 watch(
   () => props.show,
   (v) => {
@@ -163,6 +154,8 @@ watch(
       form.cor = '#6d28d9'
       form.icon = null
       erros.nome = ''
+      erros.cor = ''
+      erros.icon = ''
       showColorPicker.value = false
       showIconPicker.value = false
       iconSearch.value = ''
@@ -170,11 +163,10 @@ watch(
   }
 )
 
+// actions
 const toggleIconPicker = () => {
   showIconPicker.value = !showIconPicker.value
-  if (showIconPicker.value) {
-    iconSearch.value = ''
-  }
+  if (showIconPicker.value) iconSearch.value = ''
 }
 
 const selectColor = (color) => {
@@ -182,35 +174,37 @@ const selectColor = (color) => {
   showColorPicker.value = false
 }
 
-const selectIcon = (idx) => {
-  form.icon = idx
+const selectIcon = (id) => {
+  form.icon = id
+  erros.icon = ''
   showIconPicker.value = false
 }
 
 const clearIcon = () => {
   form.icon = null
-  showIconPicker.value = false
 }
 
+// modal actions
 const onCancel = () => {
-  erros.nome = ''
-  erros.cor = ''
-  erros.icon = null
   emit('close')
 }
 
 const onConfirm = () => {
   let temErro = false
 
-  if (!form.nome || !form.nome.trim()) {
+  erros.nome = ''
+  erros.icon = ''
+
+  if (!form.nome.trim()) {
     erros.nome = 'O nome da coluna é obrigatório.'
     temErro = true
   }
 
-  if (form.icon == undefined || form.icon == null) {
-    erros.icon = 'Por Favor, Escolha um Icone para a sua Coluna'
+  if (!form.icon) {
+    erros.icon = 'Por favor, escolha um ícone.'
     temErro = true
   }
+
   if (temErro) return
 
   emit('save', {
@@ -218,6 +212,7 @@ const onConfirm = () => {
     cor: form.cor,
     icon: form.icon
   })
+
   emit('close')
 }
 </script>
@@ -614,32 +609,26 @@ const onConfirm = () => {
     .btn-cancel
       font-family: var(--semibold)
       background: transparent
-      border: 1px solid rgba(255, 255, 255, 0.1)
-      color: rgba(255, 255, 255, 0.9)
-      padding: 10px 20px
-      border-radius: 10px
+      border: 1px solid rgba(255,255,255,0.08)
+      color: var(--cor-branco)
+      padding: 8px 14px
+      border-radius: 8px
       cursor: pointer
-      transition: all 0.2s ease
-      font-size: 14px
+      transition: all 0.3s
 
       &:hover
-        background: rgba(239, 68, 68, 0.1)
-        border-color: rgba(239, 68, 68, 0.3)
-        color: #ef4444
-        transform: translateY(-1px)
+        background-color: var(--cor-vermelho)
+        transform: scale(1.03)
 
     .btn-confirm
       font-family: var(--semibold)
-      background: linear-gradient(135deg, #10b981, #059669)
-      color: white
-      padding: 10px 24px
-      border-radius: 10px
-      border: none
+      background: linear-gradient(130deg, var(--cor-verde-escuro-3) 0%, var(--cor-verde) 120%)
+      color: var(--cor-branco)
+      padding: 8px 14px
+      border-radius: 8px
       cursor: pointer
-      transition: all 0.2s ease
-      font-size: 14px
+      transition: all 0.3s
 
       &:hover
-        transform: translateY(-1px)
-        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3)
+        transform: scale(1.04)
 </style>
