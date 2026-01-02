@@ -186,17 +186,18 @@ const overlayClick = () => {
           font-family: var(--light)
 
     .avatar-preview
-      width: 160px
+      width: 120px
       display: flex
       align-items: center
       justify-content: flex-end
 
       img
-        width: 150px
-        height: 150px
+        width: 110px
+        height: 110px
         border-radius: 50%
         object-fit: cover
         cursor: pointer
+
 
   .modal-footer
     display: flex

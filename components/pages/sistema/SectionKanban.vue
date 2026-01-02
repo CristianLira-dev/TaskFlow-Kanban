@@ -3,7 +3,7 @@
     <div class="colunas-wrapper" ref="columnsWrapper">
       <div class="colunas" ref="columnsContainer">
         <!-- Colunas existentes -->
-        <div v-for="column in kanbanStore.columns" :key="column.id" class="coluna" :class="{ 'arrastando-sobre': column.id === dragOverColumn }" @dragover.prevent="handleDragOver(column.id)" @dragleave="handleDragLeave" @drop="handleDrop(column.id)">
+        <div v-for="column in kanbanStore.columns" :key="column.id" class="coluna" :style="colunaStyle(column)">
           <div class="coluna-cabecalho">
             <div class="coluna-titulo-wrapper">
               <input v-model="column.title" type="text" class="coluna-titulo-input" @focus="handleTitleFocus(column)" @blur="handleTitleBlur(column)" @keyup.enter="$event.target.blur()" />
@@ -15,13 +15,22 @@
 
           <div class="coluna-conteudo">
             <!-- Aqui você pode adicionar conteúdo personalizado -->
-            <div class="coluna-vazia">
+            <div v-if="kanbanStore.tasks.length < 1" class="coluna-vazia">
               <p>Adicione Tarefas a esta coluna</p>
+            </div>
+
+            <div class="kanban-tasks">
+              <div class="kanban-card" v-for="task in tasksByColumn(column.id).value" :key="task.id">
+                <h4>{{ task.title }}</h4>
+                <p v-if="task.description">{{ task.description }}</p>
+                <div class="prioridade-data">
+                  <span :class="['priority', { 'priority-baixa': task.priority === 'baixa', 'priority-alta': task.priority === 'alta', 'priority-media': task.priority === 'media' }]">Prioridade: {{ task.priority }}</span>
+                  <p class="date">{{ task.createdAt }}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Botão para adicionar nova coluna moved to SectionButtons -->
       </div>
     </div>
 
@@ -36,105 +45,79 @@
     </div>
 
     <ModalAddColuna :show="mostrarModal" @close="fecharModal" @save="salvarNovaColuna"></ModalAddColuna>
+    <ModalAddTarefa :show="mostrarModalTarefa" @close="fecharModalTarefa" @save="salvarNovaTarefa"></ModalAddTarefa>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import ModalAddColuna from '../../global/modalAddColuna/ModalAddColuna.vue'
+import ModalAddTarefa from '../../global/modalAddTarefa/ModalAddTarefa.vue'
 import { useKanbanStore } from '@/stores/useKanbanStore'
 
 const kanbanStore = useKanbanStore()
 
-// Dados das colunas
-const columns = ref([
-  { id: 1, title: 'A Fazer' },
-  { id: 2, title: 'Fazendo' },
-  { id: 3, title: 'Feito' }
-])
+const tasksByColumn = (columnId) => {
+  return computed(() => kanbanStore.tasks.filter((task) => task.columnId === columnId))
+}
 
-// Referências do DOM
+// refs de scroll
 const columnsWrapper = ref(null)
 const columnsContainer = ref(null)
 
-// Estado do drag & drop
-const draggedColumn = ref(null)
-const dragOverColumn = ref(null)
+// modal
+const mostrarModal = computed(() => kanbanStore.modalAddColumnOpen)
+
+const fecharModal = () => {
+  kanbanStore.fecharModalAddColuna()
+}
+
+const salvarNovaColuna = (dados) => {
+  kanbanStore.adicionarColuna(dados)
+}
+
+// Modal de tarefa
+const mostrarModalTarefa = computed(() => kanbanStore.modalAddTaskOpen)
+
+const fecharModalTarefa = () => {
+  kanbanStore.fecharModalAddTarefa()
+}
+
+const salvarNovaTarefa = (dados) => {
+  kanbanStore.adicionarTarefa(dados)
+}
 
 // Estado da rolagem
 const podeRolarEsquerda = ref(false)
 const podeRolarDireita = ref(false)
 const mostrarIndicadoresRolagem = ref(false)
 
-// Gerenciamento de colunas
-let proximoIdColuna = 4
-
-const adicionarNovaColuna = () => {
-  const novaColuna = {
-    id: proximoIdColuna++,
-    title: 'Teste'
-  }
-  columns.value.push(novaColuna)
-
-  // Focar no título da nova coluna após renderização
-  nextTick(() => {
-    const ultimaColuna = document.querySelectorAll('.coluna-titulo-input')[columns.value.length - 1]
-    if (ultimaColuna) ultimaColuna.focus()
-  })
-}
-
-// expose function to parent so external components can add columns
-defineExpose({ adicionarNovaColuna })
-
-const excluirColuna = (colunaId) => {
-  const index = columns.value.findIndex((col) => col.id === colunaId)
-  if (index !== -1) {
-    columns.value.splice(index, 1)
-  }
-}
-
-// Drag & Drop para reordenar colunas
-const handleDragStart = (colunaId) => {
-  draggedColumn.value = colunaId
-}
-
-const handleDragOver = (colunaId) => {
-  if (draggedColumn.value !== colunaId) {
-    dragOverColumn.value = colunaId
-  }
-}
-
-const handleDragLeave = () => {
-  dragOverColumn.value = null
-}
-
-const handleDragEnd = () => {
-  dragOverColumn.value = null
-  draggedColumn.value = null
-}
-
-const handleDrop = (paraColunaId) => {
-  if (!draggedColumn.value || draggedColumn.value === paraColunaId) return
-
-  const deIndex = columns.value.findIndex((col) => col.id === draggedColumn.value)
-  const paraIndex = columns.value.findIndex((col) => col.id === paraColunaId)
-
-  if (deIndex !== -1 && paraIndex !== -1) {
-    const [colunaMovida] = columns.value.splice(deIndex, 1)
-    columns.value.splice(paraIndex, 0, colunaMovida)
-  }
-
-  dragOverColumn.value = null
-}
-
 // Edição de títulos
 const handleTitleFocus = (coluna) => {
   coluna.tituloOriginal = coluna.title
 }
 
-const handleTitleBlur = (coluna) => {
-  if (!coluna.title.trim()) {
-    coluna.title = coluna.tituloOriginal || 'Nova Coluna'
+// Priority styling is handled via class binding in the template (no DOM access needed)
+
+// Define a variável CSS/valor para cada coluna; prioriza cor personalizada
+const getColorVar = (coluna) => {
+  const explicit = coluna.color || coluna.colorVar
+  if (explicit) return explicit
+
+  const title = (coluna.title || '').toLowerCase()
+  if (title.includes('fazer')) return '--cor-azul-claro'
+  if (title.includes('fazendo')) return '--cor-amarelo'
+  if (title.includes('feito')) return '--cor-verde'
+  return '--cor-verde'
+}
+
+// Retorna um objeto de estilo inline para a coluna
+const colunaStyle = (coluna) => {
+  const colorValue = getColorVar(coluna) || '--cor-verde'
+  const resolved = typeof colorValue === 'string' && colorValue.startsWith('--') ? `var(${colorValue})` : colorValue
+  return {
+    background: `linear-gradient(0deg, var(--cor-escuro-2) 10%, ${resolved} 1000%)`,
+    borderColor: resolved
   }
 }
 
@@ -228,9 +211,9 @@ onUnmounted(() => {
   min-width: min-content
 
 .coluna
-  min-width: 280px
-  max-width: 280px
-  background: linear-gradient(0deg, var(--cor-escuro-2) 10%, var(--cor-verde) 500%)
+  min-width: 400px
+  max-width: 400px
+  background: linear-gradient(0deg, var(--cor-escuro-2) 10%, var(--cor-verde) 1000%)
   border-radius: 12px
   padding: 16px
   display: flex
@@ -269,7 +252,7 @@ onUnmounted(() => {
   min-width: 0
 
   &:focus
-    outline: 2px solid var(--cor-verde)
+    outline: 1px solid var(--cor-branco)
     background: rgba(255, 255, 255, 0.05)
 
 .btn-excluir-coluna
@@ -283,7 +266,7 @@ onUnmounted(() => {
   margin-left: 8px
 
   &:hover
-    color: #ff4444
+    color: var(--cor-vermelho)
     background: rgba(255, 68, 68, 0.1)
 
 .icone-excluir
@@ -294,9 +277,67 @@ onUnmounted(() => {
 .coluna-conteudo
   flex: 1
   min-height: 200px
-  display: flex
-  align-items: center
-  justify-content: center
+
+  .kanban-card
+    background-color: rgba(255, 255, 255, 0.03)
+    border: 1px solid var(--cor-branco)
+    padding: 16px
+    border-radius: 8px
+    margin-bottom: 14px
+    width: 100%
+    color: var(--cor-branco)
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45)
+    cursor: grab
+
+    h4
+      margin: 0 0 6px 6px
+      font-size: var(--f3)
+      font-family: var(--semibold)
+      color: var(--cor-branco)
+
+    p
+      margin: 0
+      padding: 8px
+      color: var(--cor-branco)
+      font-family: var(--light)
+      font-size: var(--f1)
+      border-radius: 16px
+      background-color:  rgba(255, 255, 255, 0.03)
+
+    .prioridade-data
+      display: flex
+      justify-content: space-between
+      align-items: center
+      margin-top: 8px
+      padding: 10px 0 0 0
+      border-radius: 999px
+      font-size: var(--f1)
+      font-family: var(--semibold)
+      color: var(--cor-branco)
+
+
+      .priority
+        display: inline-block
+        padding: 4px 10px
+        border-radius: 999px
+        font-size: 12px
+        background: rgba(255,255,255,0.04)
+        color: var(--cor-branco)
+
+      .priority-baixa
+        background: rgba(161, 166, 255, 0.3)
+        border: solid 1px var(--cor-azul)
+        color: var(--cor-branco)
+
+      .priority-alta
+        background: rgba(201, 6, 19, 0.3)
+        border: solid 1px var(--cor-vermelho)
+        color: var(--cor-branco)
+
+      .priority-media
+        background: rgba(255, 196, 46, 0.3)
+        border: solid 1px var(--cor-amarelo)
+        color: var(--cor-branco)
 
 .coluna-vazia
   text-align: center
@@ -304,43 +345,6 @@ onUnmounted(() => {
   font-family: var(--light)
   font-size: var(--f1)
   padding: 20px
-
-.adicionar-coluna-container
-  min-width: 280px
-  max-width: 280px
-  display: flex
-  align-items: flex-start
-  padding-top: 16px
-
-.btn-adicionar-coluna
-  display: flex
-  align-items: center
-  justify-content: center
-  gap: 12px
-  width: 100%
-  padding: 20px
-  background: rgba(255, 255, 255, 0.05)
-  border: 2px dashed rgba(255, 255, 255, 0.2)
-  border-radius: 12px
-  color: rgba(255, 255, 255, 0.7)
-  cursor: pointer
-  transition: all 0.3s ease
-  font-family: var(--semibold)
-  font-size: var(--f2)
-
-  &:hover
-    background: rgba(var(--cor-verde-rgb, 76, 175, 80), 0.1)
-    border-color: var(--cor-verde)
-    color: var(--cor-verde)
-
-    .icone-adicionar-coluna
-      fill: var(--cor-verde)
-
-.icone-adicionar-coluna
-  width: 20px
-  height: 20px
-  fill: rgba(255, 255, 255, 0.7)
-  transition: fill 0.3s ease
 
 .indicadores-rolagem
   position: absolute

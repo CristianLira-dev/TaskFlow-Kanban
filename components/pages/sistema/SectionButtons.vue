@@ -6,22 +6,12 @@
 
     <div class="controles">
       <div class="grupo-esquerda">
-        <div class="buscar">
-          <input v-model="busca" type="text" placeholder="Procurar por nome da tarefa" />
-          <Svgs nome="lupa" class="icon-lupa" />
-        </div>
-
-        <button class="btn-filtro" type="button">
-          <Svgs nome="filtro" class="icon-filtro" />
-          <span>Filtros</span>
-        </button>
-
         <div class="toggle-views" role="tablist" aria-label="Visualizações">
-          <button class="btn-view" :class="{ ativa: view === 'kanban' }" @click="setView('kanban')" aria-pressed="view === 'kanban'">
+          <button class="btn-view" id="kanbanSection" :class="{ ativa: view === 'kanban' }" @click="setView('kanban')" aria-pressed="view === 'kanban'">
             <Svgs nome="kanban" class="icon-kanban" />
             <span>Kanban</span>
           </button>
-          <button class="btn-view" :class="{ ativa: view === 'tabela' }" @click="setView('tabela')" aria-pressed="view === 'tabela'">
+          <button class="btn-view" id="tabelaSection" :class="{ ativa: view === 'tabela' }" @click="setView('tabela')" aria-pressed="view === 'tabela'">
             <Svgs nome="tabela" class="icon-tabela" />
             <span>Tabela</span>
           </button>
@@ -35,7 +25,7 @@
             <span>Adicionar Coluna</span>
           </button>
 
-          <button class="btn-adicionar" type="button">
+          <button class="btn-adicionar" type="button" @click="kanbanStore.abrirModalAddTarefa()">
             <Svgs nome="mais" class="icon-mais" />
             <span>Adicionar Tarefa</span>
           </button>
@@ -55,7 +45,11 @@ const busca = ref('')
 const view = ref('kanban')
 
 const setView = (v) => {
+  const kanban = document.getElementById('kanbanSection')
+  const tabela = document.getElementById('tabelaSection')
   view.value = v
+  if (view == 'kanban') {
+  }
 }
 
 // emits handled by parent (ex: add-column)

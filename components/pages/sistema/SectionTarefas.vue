@@ -1,6 +1,6 @@
 <template>
   <section class="tarefas">
-    <SectionButtons @add-column="handleAddColumn"></SectionButtons>
+    <SectionButtons></SectionButtons>
     <SectionKanban ref="kanbanRef"></SectionKanban>
 
     <ModalAddColuna :show="kanbanStore.modalAddColumnOpen" @close="kanbanStore.fecharModalAddColuna()" @save="kanbanStore.adicionarColuna" />
@@ -16,10 +16,6 @@ import { useKanbanStore } from '@/stores/useKanbanStore'
 const kanbanStore = useKanbanStore()
 
 const kanbanRef = ref(null)
-
-const handleAddColumn = () => {
-  kanbanRef.value?.adicionarNovaColuna?.()
-}
 </script>
 
 <style lang="sass" scoped></style>

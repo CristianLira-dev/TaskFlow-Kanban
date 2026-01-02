@@ -3,12 +3,18 @@ import { defineStore } from 'pinia'
 export const useKanbanStore = defineStore('kanban', {
   state: () => ({
     columns: [
-      { id: 1, title: 'A Fazer', cor: '#C2C7D2', icon: 1 },
-      { id: 2, title: 'Fazendo', cor: '#FFB12B', icon: 2 },
-      { id: 3, title: 'Feito', cor: '#007646', icon: 3 }
+      { id: 1, title: 'A Fazer', color: '#3b82f6' },
+      { id: 2, title: 'Fazendo', color: '#f59e0b' },
+      { id: 3, title: 'Feito', color: '#10b981' }
     ],
+
+    tasks: [],
+
     modalAddColumnOpen: false,
-    nextColumnId: 4
+    modalAddTaskOpen: false,
+
+    nextColumnId: 4,
+    nextTaskId: 1
   }),
 
   actions: {
@@ -20,19 +26,41 @@ export const useKanbanStore = defineStore('kanban', {
       this.modalAddColumnOpen = false
     },
 
-    adicionarColuna(dados) {
+    adicionarColuna({ nome, cor }) {
       this.columns.push({
         id: this.nextColumnId++,
-        title: dados.nome,
-        cor: dados.cor,
-        icon: dados.icon
+        title: nome,
+        color: cor
       })
 
       this.modalAddColumnOpen = false
     },
-    removerColuna(colunaId) {
-      const idx = this.columns.findIndex((c) => c.id === colunaId)
-      if (idx !== -1) this.columns.splice(idx, 1)
+
+    removerColuna(id) {
+      this.columns = this.columns.filter((c) => c.id !== id)
+    },
+
+    abrirModalAddTarefa() {
+      this.modalAddTaskOpen = true
+    },
+
+    fecharModalAddTarefa() {
+      this.modalAddTaskOpen = false
+    },
+
+    adicionarTarefa(dados) {
+      const now = new Date()
+      const pad = (n) => String(n).padStart(2, '0')
+      const date = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`
+
+      this.tasks.push({
+        id: this.nextTaskId++,
+        title: dados.title,
+        description: dados.description || '',
+        priority: dados.priority || 'media',
+        columnId: dados.columnId,
+        createdAt: date
+      })
     }
   }
 })
