@@ -46,6 +46,7 @@ O TaskFlow foi criado como um projeto de portfólio com o objetivo de demonstrar
 
 ### Outros
 - Fetch API (AJAX)
+- Sortable Js (Drag and Drop)
 - Git & GitHub
 
 ---
