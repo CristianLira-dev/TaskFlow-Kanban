@@ -10,13 +10,16 @@
   "dependencies": {
     "@nuxt/image": "^1.11.0",
     "@pinia/nuxt": "^0.10.1",
+    "@vueuse/integrations": "^14.1.0",
     "axios": "^1.8.4",
     "mitt": "^3.0.1",
     "pinia": "^3.0.1",
     "sass-embedded": "^1.89.2",
+    "sortablejs": "^1.15.6",
     "three": "^0.181.2",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue-smooth-dnd": "^0.8.1"
   },
   "devDependencies": {
     "nuxt": "^3.17.5"

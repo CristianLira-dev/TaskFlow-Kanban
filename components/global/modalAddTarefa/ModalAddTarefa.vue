@@ -38,9 +38,12 @@
                     v-for="col in kanbanStore.columns"
                     :key="col.id"
                     class="dropdown-item"
-                    @click="selectColumn(col.id, col.title)"
+                    @click="selectColumn(col.id, col.title, col.color)"
                   >
+                  <div class="color-dropdown">
+                    <div class="color" :style="{background:  col.color }"></div>
                     {{ col.title }}
+                  </div>
                   </button>
                 </div>
                 <p class="errorMsg">{{ erros.colunaId }}</p>
@@ -95,6 +98,7 @@ const kanbanStore = useKanbanStore()
 // Estados para controlar a visibilidade dos dropdowns
 const showColumnDropdown = ref(false)
 const showPriorityDropdown = ref(false)
+
 
 // Opções de prioridade
 const priorities = [
@@ -260,6 +264,14 @@ const onConfirm = () => {
         justify-content: space-between
         gap: 20px
 
+        // Em telas menores que 1000px, empilha os campos e alinha à largura
+        @media (max-width: 1000px)
+          flex-direction: column
+          gap: 16px
+
+          .dropdown-wrapper
+            width: 100%
+
         @media (max-width: 480px)
           flex-direction: column
           gap: 16px
@@ -353,6 +365,21 @@ const onConfirm = () => {
           overflow: hidden
           max-height: 200px
           overflow-y: auto
+
+          .color-dropdown
+            display: flex
+            align-items: center
+            text-align: center
+            justify-content: flex-start
+            gap: 10px
+
+            p
+              margin: -3px 0 0 0
+
+            .color
+              width: 15px
+              height: 15px
+              border-radius: 50%
 
           .dropdown-item
             width: 100%
