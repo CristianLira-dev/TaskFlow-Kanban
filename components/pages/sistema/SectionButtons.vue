@@ -1,5 +1,6 @@
+<!--SectionButtons.vue-->
 <template>
-  <section class="tarefas">
+  <section class="section-buttons">
     <div class="title-row">
       <h1 class="titulo">Gerenciador de Tarefas</h1>
     </div>
@@ -7,11 +8,12 @@
     <div class="controles">
       <div class="grupo-esquerda">
         <div class="toggle-views" role="tablist" aria-label="Visualizações">
-          <button class="btn-view" id="kanbanSection" :class="{ ativa: view === 'kanban' }" @click="setView('kanban')" aria-pressed="view === 'kanban'">
+          <button class="btn-view" :class="{ ativa: modelValue === 'kanban' }" @click="mudarView('kanban')" role="tab" :aria-selected="modelValue === 'kanban'" aria-controls="painel-kanban">
             <Svgs nome="kanban" class="icon-kanban" />
             <span>Kanban</span>
           </button>
-          <button class="btn-view" id="tabelaSection" :class="{ ativa: view === 'tabela' }" @click="setView('tabela')" aria-pressed="view === 'tabela'">
+
+          <button class="btn-view" :class="{ ativa: modelValue === 'tabela' }" @click="mudarView('tabela')" role="tab" :aria-selected="modelValue === 'tabela'" aria-controls="painel-tabela">
             <Svgs nome="tabela" class="icon-tabela" />
             <span>Tabela</span>
           </button>
@@ -41,22 +43,27 @@ import { useKanbanStore } from '@/stores/useKanbanStore'
 
 const kanbanStore = useKanbanStore()
 
-const busca = ref('')
-const view = ref('kanban')
-
-const setView = (v) => {
-  const kanban = document.getElementById('kanbanSection')
-  const tabela = document.getElementById('tabelaSection')
-  view.value = v
-  if (view == 'kanban') {
+// Definimos que este componente espera receber um v-model
+const props = defineProps({
+  modelValue: {
+    type: String,
+    required: true,
+    default: 'kanban'
   }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const mudarView = (novaView) => {
+  // Emitimos o evento para o pai atualizar o estado
+  emit('update:modelValue', novaView)
 }
 
 // emits handled by parent (ex: add-column)
 </script>
 
 <style lang="sass" scoped>
-.tarefas
+.section-buttons
   padding: 18px
   background-color: transparent
   border-radius: 8px

@@ -1,16 +1,23 @@
 <template>
   <section class="colunas-container">
+    <!-- Debug: Mostra quantidade de colunas -->
+    <div v-if="colunas.length === 0" class="debug-message">⚠️ Nenhuma coluna encontrada. Verifique a Store.</div>
+
     <div class="colunas-wrapper" ref="columnsWrapper">
-      <!-- Container das colunas (arrastar colunas inteiras) -->
       <div class="colunas" ref="columnsContainer">
-        <div v-for="column in kanbanStore.columns" :key="column.id" class="coluna" :style="colunaStyle(column)" :data-column-id="column.id">
+        <div v-for="column in colunas" :key="column.id" class="coluna" :style="colunaStyle(column)" :data-column-id="column.id">
           <div class="coluna-cabecalho">
             <div class="coluna-titulo-wrapper">
-              <input v-model="column.title" type="text" class="coluna-titulo-input" @focus="handleTitleFocus(column)" @blur="handleTitleBlur(column)" @keyup.enter="$event.target.blur()" />
+              <h1 class="coluna-titulo">{{ column.title }}</h1>
             </div>
-            <button class="btn-excluir-coluna" @click="kanbanStore.removerColuna(column.id)" title="Excluir coluna">
-              <Svgs nome="lixeira" class="icone-excluir" />
-            </button>
+            <div class="acoes">
+              <button class="btn-excluir-coluna" @click="editarColuna(column)" title="Editar coluna">
+                <Svgs nome="editar" class="icone-editar" />
+              </button>
+              <button class="btn-excluir-coluna" @click="removerColuna(column.id)" title="Excluir coluna">
+                <Svgs nome="lixeira" class="icone-excluir" />
+              </button>
+            </div>
           </div>
 
           <div class="coluna-conteudo">
@@ -18,13 +25,17 @@
               <p>Adicione Tarefas a esta coluna</p>
             </div>
 
-            <!-- Container de tasks (arrastar cards entre colunas) -->
             <div class="kanban-tasks" :data-column-id="column.id">
               <div class="kanban-card" v-for="task in tasksByColumn(column.id)" :key="task.id" :data-task-id="task.id">
-                <h4>{{ task.title }}</h4>
+                <div class="header-card">
+                  <h4>{{ task.title }}</h4>
+                  <button class="btn-excluir-coluna" @click="removerTarefa(task.id)" title="Excluir tarefa">
+                    <Svgs nome="lixeira" class="icone-excluir" />
+                  </button>
+                </div>
                 <p v-if="task.description">{{ task.description }}</p>
                 <div class="prioridade-data">
-                  <span :class="['priority', getPriorityClass(task.priority)]">Prioridade: {{ task.priority }}</span>
+                  <span :class="['priority', getPriorityClass(task.priority)]">{{ formatarPrioridade(task.priority) }}</span>
                   <p class="date">{{ task.createdAt }}</p>
                 </div>
               </div>
@@ -34,7 +45,6 @@
       </div>
     </div>
 
-    <!-- Indicadores de rolagem -->
     <div v-if="mostrarIndicadoresRolagem" class="indicadores-rolagem">
       <button class="btn-rolagem btn-rolagem-esquerda" :class="{ desabilitado: !podeRolarEsquerda }" @click="rolarEsquerda" aria-label="Rolar para esquerda">
         <Svgs nome="seta-esquerda" class="icone-rolagem" />
@@ -43,20 +53,19 @@
         <Svgs nome="seta-direita" class="icone-rolagem" />
       </button>
     </div>
-
-    <ModalAddColuna :show="mostrarModal" @close="fecharModal" @save="salvarNovaColuna"></ModalAddColuna>
-    <ModalAddTarefa :show="mostrarModalTarefa" @close="fecharModalTarefa" @save="salvarNovaTarefa"></ModalAddTarefa>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
-import ModalAddColuna from '../../global/modalAddColuna/ModalAddColuna.vue'
-import ModalAddTarefa from '../../global/modalAddTarefa/ModalAddTarefa.vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useKanbanStore } from '@/stores/useKanbanStore'
 import Sortable from 'sortablejs'
 
 const kanbanStore = useKanbanStore()
+
+// ✅ Usar computed para garantir reatividade
+const colunas = computed(() => kanbanStore.columns)
+const tarefas = computed(() => kanbanStore.tasks)
 
 // Refs para Sortable
 const columnsWrapper = ref(null)
@@ -64,27 +73,46 @@ const columnsContainer = ref(null)
 let columnSortable = null
 const taskSortables = new Map()
 
+// Função para obter tasks por coluna com computed
+const tasksByColumn = (columnId) => {
+  return tarefas.value.filter((task) => task.columnId === columnId)
+}
+
 // Classes de prioridade
 const getPriorityClass = (priority) => {
-  return {
-    'priority-baixa': priority === 'baixa',
-    'priority-media': priority === 'media',
-    'priority-alta': priority === 'alta'
+  const classes = {
+    baixa: 'priority-baixa',
+    media: 'priority-media',
+    alta: 'priority-alta'
+  }
+  return classes[priority] || ''
+}
+
+// Formatar prioridade
+const formatarPrioridade = (prioridade) => {
+  const map = {
+    alta: 'Alta',
+    media: 'Média',
+    baixa: 'Baixa'
+  }
+  return map[prioridade] || prioridade
+}
+
+// Ações
+const editarColuna = (column) => {
+  kanbanStore.abrirModalAddColuna(column)
+}
+
+const removerColuna = (columnId) => {
+  if (confirm('Deseja realmente excluir esta coluna e todas as suas tarefas?')) {
+    kanbanStore.removerColuna(columnId)
   }
 }
 
-// Função para obter tasks por coluna - SEM REATIVIDADE
-const tasksByColumn = (columnId) => {
-  return kanbanStore.tasks.filter((task) => task.columnId === columnId)
-}
-
-// ============================================
-// INICIALIZAÇÃO DO SORTABLE
-// ============================================
+// Inicialização do Sortable
 const initializeSortable = async () => {
   await nextTick()
 
-  // 1. SORTABLE PARA COLUNAS
   if (columnsContainer.value && !columnSortable) {
     columnSortable = new Sortable(columnsContainer.value, {
       animation: 200,
@@ -101,22 +129,19 @@ const initializeSortable = async () => {
         kanbanStore.reordenarColunas(columnId, newIndex)
       }
     })
-    console.log('✅ Column Sortable inicializado')
   }
 
-  // 2. SORTABLE PARA TASKS - um por coluna
   const taskContainers = document.querySelectorAll('.kanban-tasks')
 
   taskContainers.forEach((container) => {
     const columnId = Number(container.dataset.columnId)
 
-    // Se já existe sortable neste container, pula
     if (taskSortables.has(columnId)) {
       return
     }
 
     const sortable = new Sortable(container, {
-      group: 'kanban-tasks', // Nome do grupo para mover entre colunas
+      group: 'kanban-tasks',
       animation: 150,
       ghostClass: 'task-ghost',
       chosenClass: 'task-chosen',
@@ -127,39 +152,17 @@ const initializeSortable = async () => {
       filter: '.coluna-titulo-input, .btn-excluir-coluna',
       preventOnFilter: false,
 
-      // CRITICAL: Define a ordem baseada no store, não no DOM
-      store: {
-        get: function (sortable) {
-          const columnId = Number(sortable.el.dataset.columnId)
-          const tasks = kanbanStore.tasks.filter((t) => t.columnId === columnId)
-          return tasks.map((t) => String(t.id))
-        },
-        set: function (sortable) {
-          // Não faz nada aqui - deixa o onEnd gerenciar
-        }
-      },
-
       onStart(evt) {
         evt.item.classList.add('task-dragging')
-        console.log('🎯 Iniciou arrasto da task', evt.item.dataset.taskId)
       },
 
       onEnd(evt) {
         evt.item.classList.remove('task-dragging')
 
         const taskId = Number(evt.item.dataset.taskId)
-        const oldColumnId = Number(evt.from.dataset.columnId)
         const newColumnId = Number(evt.to.dataset.columnId)
 
-        console.log(`📦 Task ${taskId}: coluna ${oldColumnId} → ${newColumnId}`)
-
-        // Atualiza a task na store (não re-renderiza o DOM!)
-        const task = kanbanStore.tasks.find((t) => t.id === taskId)
-        if (task && task.columnId !== newColumnId) {
-          // Atualiza diretamente sem trigger de reatividade
-          task.columnId = newColumnId
-          console.log('✅ Task atualizada na store')
-        }
+        kanbanStore.moverTarefa(taskId, newColumnId)
       },
 
       onChange(evt) {
@@ -169,116 +172,24 @@ const initializeSortable = async () => {
         }, 300)
       }
     })
-
     taskSortables.set(columnId, sortable)
-    console.log(`✅ Task Sortable inicializado para coluna ${columnId}`)
   })
 }
 
-// ============================================
-// WATCH APENAS PARA NOVAS COLUNAS
-// ============================================
+// Watch para novas colunas
 watch(
   () => kanbanStore.columns.length,
   async (newLength, oldLength) => {
     if (newLength > oldLength) {
-      console.log('🆕 Nova coluna detectada, inicializando Sortable...')
       await nextTick()
-
-      // Inicializa sortable apenas para containers novos
-      const taskContainers = document.querySelectorAll('.kanban-tasks')
-      taskContainers.forEach((container) => {
-        const columnId = Number(container.dataset.columnId)
-
-        if (!taskSortables.has(columnId)) {
-          const sortable = new Sortable(container, {
-            group: 'kanban-tasks',
-            animation: 150,
-            ghostClass: 'task-ghost',
-            chosenClass: 'task-chosen',
-            dragClass: 'task-drag',
-            fallbackOnBody: true,
-            swapThreshold: 0.65,
-
-            filter: '.coluna-titulo-input, .btn-excluir-coluna',
-            preventOnFilter: false,
-
-            onStart(evt) {
-              evt.item.classList.add('task-dragging')
-            },
-
-            onEnd(evt) {
-              evt.item.classList.remove('task-dragging')
-
-              const taskId = Number(evt.item.dataset.taskId)
-              const newColumnId = Number(evt.to.dataset.columnId)
-
-              const task = kanbanStore.tasks.find((t) => t.id === taskId)
-              if (task) {
-                task.columnId = newColumnId
-              }
-            },
-
-            onChange(evt) {
-              evt.to.classList.add('coluna-drop-target')
-              setTimeout(() => {
-                evt.to.classList.remove('coluna-drop-target')
-              }, 300)
-            }
-          })
-
-          taskSortables.set(columnId, sortable)
-          console.log(`✅ Sortable criado para nova coluna ${columnId}`)
-        }
-      })
+      initializeSortable()
     }
   }
 )
 
-// ============================================
-// MODAL COLUNA
-// ============================================
-const mostrarModal = computed(() => kanbanStore.modalAddColumnOpen)
-
-const fecharModal = () => {
-  kanbanStore.fecharModalAddColuna()
-}
-
-const salvarNovaColuna = async (dados) => {
-  kanbanStore.adicionarColuna(dados)
-}
-
-// ============================================
-// MODAL TAREFA
-// ============================================
-const mostrarModalTarefa = computed(() => kanbanStore.modalAddTaskOpen)
-
-const fecharModalTarefa = () => {
-  kanbanStore.fecharModalAddTarefa()
-}
-
-const salvarNovaTarefa = async (dados) => {
-  kanbanStore.adicionarTarefa(dados)
-  console.log('✅ Nova tarefa adicionada')
-}
-
-// ============================================
-// EDIÇÃO DE TÍTULOS
-// ============================================
-const handleTitleFocus = (coluna) => {
-  coluna.tituloOriginal = coluna.title
-}
-
-const handleTitleBlur = (coluna) => {
-  // Aqui você pode adicionar validação ou salvamento
-}
-
-// ============================================
-// ESTILOS DAS COLUNAS
-// ============================================
+// Estilos das colunas
 const getColorVar = (coluna) => {
-  const explicit = coluna.color
-  if (explicit) return explicit
+  if (coluna.color) return coluna.color
 
   const title = (coluna.title || '').toLowerCase()
   if (title.includes('fazer')) return '#3b82f6'
@@ -295,9 +206,7 @@ const colunaStyle = (coluna) => {
   }
 }
 
-// ============================================
-// CONTROLE DE ROLAGEM
-// ============================================
+// Controle de rolagem
 const podeRolarEsquerda = ref(false)
 const podeRolarDireita = ref(false)
 const mostrarIndicadoresRolagem = ref(false)
@@ -325,12 +234,14 @@ const rolarDireita = () => {
   }
 }
 
-// ============================================
-// LIFECYCLE
-// ============================================
+// Lifecycle
 let resizeObserver = null
 
 onMounted(() => {
+  console.log('SectionKanban montado')
+  console.log('Colunas:', kanbanStore.columns)
+  console.log('Tarefas:', kanbanStore.tasks)
+
   initializeSortable()
   verificarRolagem()
 
@@ -373,6 +284,16 @@ onUnmounted(() => {
 </script>
 
 <style lang="sass" scoped>
+.debug-message
+  padding: 20px
+  margin: 20px
+  background: rgba(255, 193, 7, 0.1)
+  border: 2px solid #ffc107
+  border-radius: 8px
+  color: #ffc107
+  font-family: var(--semibold)
+  text-align: center
+
 .colunas-container
   position: relative
   width: 100%
@@ -411,12 +332,11 @@ onUnmounted(() => {
   flex-direction: column
   border: 1px solid var(--cor-verde)
   transition: all 0.3s ease
-  cursor: grab // Indica que pode arrastar a coluna
+  cursor: grab
 
   &:active
     cursor: grabbing
 
-  // Estados do Sortable para colunas
   &.coluna-ghost
     opacity: 0.4
     background: rgba(255, 255, 255, 0.1)
@@ -442,20 +362,23 @@ onUnmounted(() => {
   gap: 8px
   flex: 1
 
-.coluna-titulo-input
-  background: transparent
-  border: none
+.coluna-titulo
   color: var(--cor-branco)
   font-family: var(--semibold)
-  font-size: var(--f3)
+  font-size: var(--f4)
   padding: 4px 8px
-  border-radius: 4px
   width: 100%
   min-width: 0
+  margin: 0
 
   &:focus
     outline: 1px solid var(--cor-branco)
     background: rgba(255, 255, 255, 0.05)
+
+.acoes
+  display: flex
+  align-items: center
+  gap: 4px
 
 .btn-excluir-coluna
   background: transparent
@@ -465,23 +388,35 @@ onUnmounted(() => {
   padding: 4px
   border-radius: 4px
   transition: all 0.2s ease
-  margin-left: 8px
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 24px
+  height: 24px
 
   &:hover
-    color: var(--cor-vermelho)
-    background: rgba(255, 68, 68, 0.1)
+    background: rgba(255, 255, 255, 0.1)
 
-.icone-excluir
-  width: 16px
-  height: 16px
-  fill: currentColor
+  .icone-excluir,
+  .icone-editar
+    width: 16px
+    height: 16px
+    fill: currentColor
+
+  &:has(.icone-excluir)
+    &:hover
+      color: var(--cor-vermelho)
+
+  &:has(.icone-editar)
+    &:hover
+      color: var(--cor-azul)
 
 .coluna-conteudo
   flex: 1
   min-height: 200px
 
 .kanban-tasks
-  min-height: 100px // Para facilitar drop em colunas vazias
+  min-height: 100px
   transition: background-color 0.3s ease
   border-radius: 8px
   padding: 4px
@@ -506,7 +441,6 @@ onUnmounted(() => {
   &:active
     cursor: grabbing
 
-  // Estados do Sortable para tasks
   &.task-ghost
     opacity: 0.4
     background: rgba(255, 255, 255, 0.1)
@@ -526,8 +460,15 @@ onUnmounted(() => {
     cursor: grabbing
     opacity: 0.9
 
+  .header-card
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin: 0 0 6px 0
+
+
   h4
-    margin: 0 0 6px 6px
+    margin: 0 0 0 6px
     font-size: var(--f3)
     font-family: var(--semibold)
     color: var(--cor-branco)
@@ -557,7 +498,7 @@ onUnmounted(() => {
       padding: 4px 10px
       border-radius: 999px
       font-size: 12px
-      background: rgba(255,255,255,0.04)
+      background: rgba(255, 255, 255, 0.04)
       color: var(--cor-branco)
 
     .priority-baixa
@@ -574,6 +515,11 @@ onUnmounted(() => {
       background: rgba(255, 196, 46, 0.3)
       border: solid 1px var(--cor-amarelo)
       color: var(--cor-branco)
+
+    .date
+      font-size: var(--f1)
+      color: rgba(255, 255, 255, 0.5)
+      margin: 0
 
 .coluna-vazia
   text-align: center
