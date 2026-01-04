@@ -32,7 +32,7 @@ onMounted(() => {
    * CÂMERA
    * =============================== */
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100)
-  camera.position.set(0, 0.2, 4)
+  camera.position.set(0, 0.18, 3.4)
 
   /* ===============================
    * RENDERER
@@ -40,32 +40,37 @@ onMounted(() => {
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
-    powerPreference: 'low-power'
+    powerPreference: 'high-performance'
   })
+
   canvas3d.value.appendChild(renderer.domElement)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.outputColorSpace = THREE.SRGBColorSpace
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 1
+  renderer.physicallyCorrectLights = true
 
   /* ===============================
    * LUZES
    * =============================== */
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6))
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4))
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1)
-  dirLight.position.set(5, 10, 5)
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.4)
+  dirLight.position.set(5, 10, 6)
   scene.add(dirLight)
 
   /* ===============================
-   * TEXTURAS
+   * TEXTURA FALLBACK
    * =============================== */
   const textureLoader = new THREE.TextureLoader()
-  const fallbackTexture = textureLoader.load('/images/basquetelife.jpg')
+  const fallbackTexture = textureLoader.load('/favicons/android-chrome-512x512.jpg')
   fallbackTexture.colorSpace = THREE.SRGBColorSpace
 
   /* ===============================
-   * VÍDEO (iOS SAFE)
+   * VÍDEO (QUALIDADE ALTA)
    * =============================== */
   const video = document.createElement('video')
-  video.src = '/videos/video_fofo.mp4'
+  video.src = '/videos/video-Kanban.mp4'
   video.muted = true
   video.loop = true
   video.playsInline = true
@@ -74,6 +79,9 @@ onMounted(() => {
 
   const videoTexture = new THREE.VideoTexture(video)
   videoTexture.colorSpace = THREE.SRGBColorSpace
+  videoTexture.minFilter = THREE.LinearFilter
+  videoTexture.magFilter = THREE.LinearFilter
+  videoTexture.generateMipmaps = false
   videoTexture.flipY = true
 
   /* ===============================
@@ -83,10 +91,11 @@ onMounted(() => {
   let macbookModel = null
   let screenLid = null
   let screenMesh = null
+  let screenMaterial = null
   let renderLoopActive = false
 
   /* ===============================
-   * RENDER CONTROLADO (CPU LOW)
+   * RENDER CONTROLADO
    * =============================== */
   function renderOnce() {
     renderer.render(scene, camera)
@@ -123,7 +132,7 @@ onMounted(() => {
       canvas3d.value.style.width = '55%'
       canvas3d.value.style.height = '140%'
       canvas3d.value.style.padding = '0'
-      camera.position.set(0, 0.2, 4)
+      camera.position.set(0, 0.18, 3.4)
 
       if (macbookModel) {
         macbookModel.scale.set(0.8, 0.8, 0.8)
@@ -154,7 +163,7 @@ onMounted(() => {
     // Tela
     screenMesh = macbookModel.getObjectByName('Object_123')
 
-    // base / teclado
+    // Base / teclado
     const floor = macbookModel.getObjectByName('floor')
     if (floor) {
       floor.rotation.x = -3.1
@@ -162,15 +171,13 @@ onMounted(() => {
       floor.rotation.z = 24.91
     }
 
+    /* ===== MATERIAL CORRETO DA TELA ===== */
     if (screenMesh && screenMesh.isMesh) {
-      screenMesh.material = new THREE.MeshStandardMaterial({
-        map: fallbackTexture,
-        emissiveMap: fallbackTexture,
-        emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.4,
-        roughness: 0.5,
-        metalness: 0
+      screenMaterial = new THREE.MeshBasicMaterial({
+        map: fallbackTexture
       })
+
+      screenMesh.material = screenMaterial
       screenMesh.position.z += 0.002
     }
 
@@ -178,15 +185,14 @@ onMounted(() => {
     updateResponsive()
 
     /* ===============================
-     * AUTOPLAY + FALLBACK
+     * AUTOPLAY + VÍDEO
      * =============================== */
     video
       .play()
       .then(() => {
-        if (screenMesh) {
-          screenMesh.material.map = videoTexture
-          screenMesh.material.emissiveMap = videoTexture
-          screenMesh.material.needsUpdate = true
+        if (screenMaterial) {
+          screenMaterial.map = videoTexture
+          screenMaterial.needsUpdate = true
         }
         renderLoopActive = true
         renderVideo()
