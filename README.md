@@ -7,6 +7,13 @@ O projeto permite criar quadros personalizados, organizar tarefas em colunas e m
 
 <img width="1919" height="908" alt="Screenshot-TaskFlow" src="https://github.com/user-attachments/assets/e9d8c673-fa02-4832-835f-00d6e9b359bd" />
 
+
+
+
+##  Vídeo Demostrativo
+
+https://github.com/user-attachments/assets/5a8ca12a-b53b-4bad-ba36-684c5818bd4b
+
 ## ✨ Funcionalidades
 
 - Cadastro e login de usuários
