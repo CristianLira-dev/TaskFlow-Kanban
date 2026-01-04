@@ -38,7 +38,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useKanbanStore } from '@/stores/useKanbanStore'
 
 const kanbanStore = useKanbanStore()

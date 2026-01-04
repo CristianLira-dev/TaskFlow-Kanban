@@ -12,6 +12,8 @@ export const useKanbanStore = defineStore('kanban', {
 
     modalAddColumnOpen: false,
     modalAddTaskOpen: false,
+    colunaParaEditar: null,
+    tarefaParaEditar: null,
 
     nextColumnId: 4,
     nextColumnOrder: 4,
@@ -19,14 +21,20 @@ export const useKanbanStore = defineStore('kanban', {
   }),
 
   getters: {
-    // Getter para obter tarefas por coluna
     getTasksByColumn: (state) => (columnId) => {
       return state.tasks.filter((task) => task.columnId === columnId)
     },
 
-    // Getter para obter coluna por ID
     getColumnById: (state) => (columnId) => {
       return state.columns.find((col) => col.id === columnId)
+    },
+
+    estaEditandoColuna: (state) => {
+      return state.colunaParaEditar !== null
+    },
+
+    estaEditandoTarefa: (state) => {
+      return state.tarefaParaEditar !== null
     }
   },
 
@@ -35,27 +43,36 @@ export const useKanbanStore = defineStore('kanban', {
     // AÇÕES DE MODAL - COLUNA
     // ============================================
     abrirModalAddColuna(coluna = null) {
-      this.modalAddColumnOpen = true
-      // Se passar uma coluna, você pode guardar para edição
       if (coluna) {
-        console.log('Editando coluna:', coluna)
-        // Adicionar lógica de edição aqui se necessário
+        this.colunaParaEditar = { ...coluna }
+      } else {
+        this.colunaParaEditar = null
       }
+
+      this.modalAddColumnOpen = true
     },
 
     fecharModalAddColuna() {
       this.modalAddColumnOpen = false
+      this.colunaParaEditar = null
     },
 
     // ============================================
     // AÇÕES DE MODAL - TAREFA
     // ============================================
-    abrirModalAddTarefa() {
+    abrirModalAddTarefa(tarefa = null) {
+      if (tarefa) {
+        this.tarefaParaEditar = { ...tarefa }
+      } else {
+        this.tarefaParaEditar = null
+      }
+
       this.modalAddTaskOpen = true
     },
 
     fecharModalAddTarefa() {
       this.modalAddTaskOpen = false
+      this.tarefaParaEditar = null
     },
 
     // ============================================
@@ -74,6 +91,20 @@ export const useKanbanStore = defineStore('kanban', {
 
       console.log('Coluna adicionada:', novaColuna)
       console.log('Total de colunas:', this.columns.length)
+    },
+
+    editarColuna({ id, nome, cor }) {
+      const index = this.columns.findIndex((c) => c.id === id)
+
+      if (index !== -1) {
+        this.columns[index].title = nome
+        this.columns[index].color = cor
+
+        console.log('Coluna editada:', this.columns[index])
+        console.log('Colunas atualizadas:', this.columns)
+      }
+
+      this.fecharModalAddColuna()
     },
 
     removerColuna(id) {
@@ -135,6 +166,23 @@ export const useKanbanStore = defineStore('kanban', {
 
       console.log('Tarefa adicionada:', novaTarefa)
       console.log('Total de tarefas:', this.tasks.length)
+    },
+
+    editarTarefa(dados) {
+      const index = this.tasks.findIndex((t) => t.id === dados.id)
+
+      if (index !== -1) {
+        // Atualiza os campos da tarefa
+        this.tasks[index].title = dados.title
+        this.tasks[index].description = dados.description || ''
+        this.tasks[index].priority = dados.priority || 'media'
+        this.tasks[index].columnId = dados.columnId || this.columns[0]?.id || 1
+
+        console.log('Tarefa editada:', this.tasks[index])
+        console.log('Tarefas atualizadas:', this.tasks)
+      }
+
+      this.fecharModalAddTarefa()
     },
 
     removerTarefa(taskId) {

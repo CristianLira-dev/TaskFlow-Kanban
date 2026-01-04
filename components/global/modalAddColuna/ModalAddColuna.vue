@@ -1,8 +1,9 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="onCancel">
+  <div v-if="show" class="modal-overlay">
     <div class="modal-container" @click.stop>
       <header class="modal-header">
-        <h2>Adicionar Coluna</h2>
+        <!-- ✅ NOVO: Título dinâmico -->
+        <h2>{{ tituloModal }}</h2>
       </header>
 
       <div class="modal-body">
@@ -10,18 +11,20 @@
           <div class="inputs">
             <label>
               <span class="label">Nome da coluna</span>
-              <input v-model="form.nome" type="text" placeholder="Ex: Em andamento" />
+              <!-- ✅ NOVO: Campo pré-preenchido -->
+              <input v-model="form.nome" type="text" :placeholder="placeholderNome" />
               <p class="errorMsg">{{ erros.nome }}</p>
             </label>
 
             <label>
               <span class="label">Cor</span>
               <div class="color-picker-container">
+                <!-- ✅ NOVO: Cor pré-selecionada -->
                 <div class="color-preview" :style="{ backgroundColor: form.cor }" @click="showColorPicker = !showColorPicker">
                   <div class="color-preview-inner"></div>
                 </div>
                 <div class="color-input-group">
-                  <input v-model="form.cor" type="text" class="color-hex-input" placeholder="#6d28d9" />
+                  <input v-model="form.cor" type="text" class="color-hex-input" :placeholder="placeholderCor" />
                   <input v-model="form.cor" type="color" class="color-input-native" />
                 </div>
 
@@ -44,7 +47,8 @@
 
       <footer class="modal-footer">
         <button class="btn-cancel" @click="onCancel">Cancelar</button>
-        <button class="btn-confirm" @click="onConfirm">Confirmar</button>
+        <!-- ✅ NOVO: Texto dinâmico do botão -->
+        <button class="btn-confirm" @click="onConfirm">{{ textoBotaoConfirmar }}</button>
       </footer>
     </div>
   </div>
@@ -52,12 +56,37 @@
 
 <script setup>
 import { reactive, ref, watch, computed } from 'vue'
+import { useKanbanStore } from '../../../stores/useKanbanStore' // Ajuste o caminho conforme necessário
+
+// ✅ NOVO: Importar a store
+const kanbanStore = useKanbanStore()
 
 // props / emits
 const props = defineProps({
   show: { type: Boolean, required: true }
 })
+
 const emit = defineEmits(['close', 'save'])
+
+const estaEditando = computed(() => kanbanStore.estaEditandoColuna)
+const colunaParaEditar = computed(() => kanbanStore.colunaParaEditar)
+
+// ✅ NOVO: Textos dinâmicos
+const tituloModal = computed(() => {
+  return estaEditando.value ? 'Editar Coluna' : 'Adicionar Coluna'
+})
+
+const placeholderNome = computed(() => {
+  return estaEditando.value ? '' : 'Ex: Em andamento'
+})
+
+const placeholderCor = computed(() => {
+  return estaEditando.value ? '' : '#6d28d9'
+})
+
+const textoBotaoConfirmar = computed(() => {
+  return estaEditando.value ? 'Salvar Alterações' : 'Confirmar'
+})
 
 // state principal
 const form = reactive({
@@ -78,16 +107,27 @@ const showIconPicker = ref(false)
 // paleta de cores
 const colorPalette = ['#6d28d9', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4', '#8b5cf6', '#f97316', '#14b8a6']
 
-// watchers
+// ✅ NOVO: Watcher para preencher os campos quando abrir o modal
 watch(
   () => props.show,
   (v) => {
     if (v) {
-      form.nome = ''
-      form.cor = '#6d28d9'
+      // Se está editando, preenche com os dados da coluna
+      if (estaEditando.value && colunaParaEditar.value) {
+        form.nome = colunaParaEditar.value.title
+        form.cor = colunaParaEditar.value.color
+      } else {
+        // Se é nova coluna, reseta os campos
+        form.nome = ''
+        form.cor = '#6d28d9'
+      }
+
       erros.nome = ''
       erros.cor = ''
       showColorPicker.value = false
+
+      console.log('Modal aberto em modo:', estaEditando.value ? 'Edição' : 'Adição')
+      console.log('Coluna para editar:', colunaParaEditar.value)
     }
   }
 )
@@ -114,10 +154,18 @@ const onConfirm = () => {
 
   if (temErro) return
 
-  emit('save', {
+  // ✅ NOVO: Prepara os dados para enviar
+  const dados = {
     nome: form.nome.trim(),
     cor: form.cor
-  })
+  }
+
+  // ✅ NOVO: Se está editando, adiciona o ID
+  if (estaEditando.value && colunaParaEditar.value) {
+    dados.id = colunaParaEditar.value.id
+  }
+
+  emit('save', dados)
 
   emit('close')
 }

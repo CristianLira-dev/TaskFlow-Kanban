@@ -1,7 +1,7 @@
 <template>
   <section class="colunas-container">
     <!-- Debug: Mostra quantidade de colunas -->
-    <div v-if="colunas.length === 0" class="debug-message">⚠️ Nenhuma coluna encontrada. Verifique a Store.</div>
+    <div v-if="colunas.length === 0" class="debug-message">Adicione uma coluna para começar a sua profutividade!</div>
 
     <div class="colunas-wrapper" ref="columnsWrapper">
       <div class="colunas" ref="columnsContainer">
@@ -11,10 +11,10 @@
               <h1 class="coluna-titulo">{{ column.title }}</h1>
             </div>
             <div class="acoes">
-              <button class="btn-excluir-coluna" @click="editarColuna(column)" title="Editar coluna">
+              <button class="btn-editar-coluna" @click="editarColuna(column)" title="Editar coluna">
                 <Svgs nome="editar" class="icone-editar" />
               </button>
-              <button class="btn-excluir-coluna" @click="removerColuna(column.id)" title="Excluir coluna">
+              <button class="btn-excluir-coluna" @click="emitirExclusaoColuna(column)" title="Excluir coluna">
                 <Svgs nome="lixeira" class="icone-excluir" />
               </button>
             </div>
@@ -29,9 +29,15 @@
               <div class="kanban-card" v-for="task in tasksByColumn(column.id)" :key="task.id" :data-task-id="task.id">
                 <div class="header-card">
                   <h4>{{ task.title }}</h4>
-                  <button class="btn-excluir-coluna" @click="removerTarefa(task.id)" title="Excluir tarefa">
-                    <Svgs nome="lixeira" class="icone-excluir" />
-                  </button>
+
+                  <div class="actions">
+                    <button class="btn-editar-tarefa" @click="emitirEditarTarefa(task)" title="Editar Tarefa">
+                      <Svgs nome="editar" class="icone-editar" />
+                    </button>
+                    <button class="btn-excluir-task" @click="emitirExclusaoTarefa(task)" title="Excluir Tarefa">
+                      <Svgs nome="lixeira" class="icone-excluir" />
+                    </button>
+                  </div>
                 </div>
                 <p v-if="task.description">{{ task.description }}</p>
                 <div class="prioridade-data">
@@ -63,10 +69,26 @@ import Sortable from 'sortablejs'
 
 const kanbanStore = useKanbanStore()
 
+const emit = defineEmits(['excluir-coluna', 'excluir-tarefa', 'editar-tarefa'])
+
 // ✅ Usar computed para garantir reatividade
 const colunas = computed(() => kanbanStore.columns)
 const tarefas = computed(() => kanbanStore.tasks)
 
+// Função para emitir evento de exclusão de coluna
+const emitirExclusaoColuna = (column) => {
+  emit('excluir-coluna', column)
+}
+
+// Função para emitir evento de exclusão de tarefa
+const emitirExclusaoTarefa = (task) => {
+  emit('excluir-tarefa', task)
+}
+
+// ✅ NOVO: Função para emitir evento de editar tarefa
+const emitirEditarTarefa = (task) => {
+  emit('editar-tarefa', task)
+}
 // Refs para Sortable
 const columnsWrapper = ref(null)
 const columnsContainer = ref(null)
@@ -101,12 +123,6 @@ const formatarPrioridade = (prioridade) => {
 // Ações
 const editarColuna = (column) => {
   kanbanStore.abrirModalAddColuna(column)
-}
-
-const removerColuna = (columnId) => {
-  if (confirm('Deseja realmente excluir esta coluna e todas as suas tarefas?')) {
-    kanbanStore.removerColuna(columnId)
-  }
 }
 
 // Inicialização do Sortable
@@ -323,8 +339,8 @@ onUnmounted(() => {
   min-width: min-content
 
 .coluna
-  min-width: 400px
-  max-width: 400px
+  min-width: 505px
+  max-width: 505px
   background: linear-gradient(0deg, var(--cor-escuro-2) 10%, var(--cor-verde) 1000%)
   border-radius: 12px
   padding: 16px
@@ -366,6 +382,10 @@ onUnmounted(() => {
   color: var(--cor-branco)
   font-family: var(--semibold)
   font-size: var(--f4)
+  max-width: 420px
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
   padding: 4px 8px
   width: 100%
   min-width: 0
@@ -380,7 +400,7 @@ onUnmounted(() => {
   align-items: center
   gap: 4px
 
-.btn-excluir-coluna
+.btn-excluir-coluna, .btn-excluir-task, .btn-editar-tarefa, .btn-editar-coluna
   background: transparent
   border: none
   color: rgba(255, 255, 255, 0.5)
@@ -466,6 +486,11 @@ onUnmounted(() => {
     align-items: center
     margin: 0 0 6px 0
 
+    .actions
+      display: flex
+      justify-content: space-between
+      align-items: center
+
 
   h4
     margin: 0 0 0 6px
@@ -478,7 +503,7 @@ onUnmounted(() => {
     padding: 8px
     color: var(--cor-branco)
     font-family: var(--light)
-    font-size: var(--f1)
+    font-size: var(--f2)
     border-radius: 16px
     background-color: rgba(255, 255, 255, 0.03)
 

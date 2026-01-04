@@ -7,9 +7,6 @@
       <slot class="section-tarefas">
         <SectionTarefas v-if="selectedPerfil === 'tarefas'" />
       </slot>
-      <slot class="section-tarefas-ocultas">
-        <SectionTarefasOcultas v-if="selectedPerfil === 'ocultas'" />
-      </slot>
     </div>
 
     <ModalSettings :show="modalSettingsOpen" :usuario="usuario" @close="modalSettingsOpen = false" @save="onSaveSettings" />
@@ -21,7 +18,6 @@
 import { ref } from 'vue'
 import ModalSettings from '../../modalSettings/ModalSettings.vue'
 import SectionTarefas from './SectionTarefas.vue'
-import SectionTarefasOcultas from './SectionTarefasOcultas.vue'
 import SidebarSistema from './SidebarSistema.vue'
 
 const isCollapsed = ref(false)

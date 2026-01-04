@@ -1,8 +1,9 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="onCancel">
+  <div v-if="show" class="modal-overlay">
     <div class="modal-container" @click.stop>
       <header class="modal-header">
-        <h2>Adicionar Tarefa</h2>
+        <!-- ✅ NOVO: Título dinâmico -->
+        <h2>{{ tituloModal }}</h2>
       </header>
 
       <div class="modal-body">
@@ -10,13 +11,14 @@
           <div class="inputs">
             <label>
               <span class="label">Título da tarefa</span>
-              <input v-model="form.titulo" type="text" placeholder="Ex: Corrigir bug" />
+              <!-- ✅ NOVO: Campo pré-preenchido -->
+              <input v-model="form.titulo" type="text" :placeholder="placeholderTitulo" />
               <p class="errorMsg">{{ erros.titulo }}</p>
             </label>
 
             <label>
               <span class="label">Descrição</span>
-              <input type="text" v-model="form.descricao" rows="4" placeholder="Descrição da tarefa"></input>
+              <input type="text" v-model="form.descricao" rows="4" :placeholder="placeholderDescricao"></input>
               <p class="errorMsg">{{ erros.descricao }}</p>
             </label>
 
@@ -80,14 +82,15 @@
 
       <footer class="modal-footer">
         <button class="btn-cancel" @click="onCancel">Cancelar</button>
-        <button class="btn-confirm" @click="onConfirm">Adicionar</button>
+        <!-- ✅ NOVO: Texto dinâmico do botão -->
+        <button class="btn-confirm" @click="onConfirm">{{ textoBotaoConfirmar }}</button>
       </footer>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { useKanbanStore } from '@/stores/useKanbanStore'
 
 const props = defineProps({ show: { type: Boolean, required: true } })
@@ -95,10 +98,28 @@ const emit = defineEmits(['close', 'save'])
 
 const kanbanStore = useKanbanStore()
 
+const estaEditando = computed(() => kanbanStore.estaEditandoTarefa)
+const tarefaParaEditar = computed(() => kanbanStore.tarefaParaEditar)
+
+const tituloModal = computed(() => {
+  return estaEditando.value ? 'Editar Tarefa' : 'Adicionar Tarefa'
+})
+
+const placeholderTitulo = computed(() => {
+  return estaEditando.value ? '' : 'Ex: Corrigir bug'
+})
+
+const placeholderDescricao = computed(() => {
+  return estaEditando.value ? '' : 'Descrição da tarefa'
+})
+
+const textoBotaoConfirmar = computed(() => {
+  return estaEditando.value ? 'Salvar Alterações' : 'Adicionar'
+})
+
 // Estados para controlar a visibilidade dos dropdowns
 const showColumnDropdown = ref(false)
 const showPriorityDropdown = ref(false)
-
 
 // Opções de prioridade
 const priorities = [
@@ -119,6 +140,16 @@ const form = reactive({
 })
 
 const erros = reactive({ titulo: '', descricao: '', colunaId: '', priority: '' })
+
+const getColumnNameById = (columnId) => {
+  const coluna = kanbanStore.columns.find(col => col.id === columnId)
+  return coluna ? coluna.title : ''
+}
+
+const getPriorityLabelByValue = (priorityValue) => {
+  const priority = priorities.find(p => p.value === priorityValue)
+  return priority ? priority.label : ''
+}
 
 // Fecha dropdowns quando clicar fora
 const closeAllDropdowns = () => {
@@ -156,26 +187,42 @@ const selectPriority = (priorityValue, priorityText) => {
   showPriorityDropdown.value = false
 }
 
-// Quando o modal abre
+// ✅ NOVO: Watcher para preencher os campos quando abrir o modal
 watch(
   () => props.show,
   (v) => {
     if (v) {
-      form.titulo = ''
-      form.descricao = ''
-      form.colunaId = null
-      form.priority = null
-      columnLabel.value = 'Selecione uma das Opções'
-      priorityLabel.value = 'Selecione uma das Opções'
+      // Se está editando, preenche com os dados da tarefa
+      if (estaEditando.value && tarefaParaEditar.value) {
+        form.titulo = tarefaParaEditar.value.title
+        form.descricao = tarefaParaEditar.value.description || ''
+        form.colunaId = tarefaParaEditar.value.columnId
+        form.priority = tarefaParaEditar.value.priority
+
+        // Atualiza os labels dos dropdowns
+        columnLabel.value = getColumnNameById(form.colunaId)
+        priorityLabel.value = getPriorityLabelByValue(form.priority)
+      } else {
+        // Se é nova tarefa, reseta os campos
+        form.titulo = ''
+        form.descricao = ''
+        form.colunaId = null
+        form.priority = null
+        columnLabel.value = 'Selecione uma das Opções'
+        priorityLabel.value = 'Selecione uma das Opções'
+      }
+
       erros.titulo = ''
       erros.descricao = ''
       erros.colunaId = ''
       erros.priority = ''
       closeAllDropdowns()
+
+      console.log('Modal de tarefa aberto em modo:', estaEditando.value ? 'Edição' : 'Adição')
+      console.log('Tarefa para editar:', tarefaParaEditar.value)
     }
   }
 )
-
 
 const onCancel = () => {
   closeAllDropdowns()
@@ -205,12 +252,20 @@ const onConfirm = () => {
 
   if (temErro) return
 
-  emit('save', {
+  // ✅ NOVO: Prepara os dados para enviar
+  const dados = {
     title: form.titulo.trim(),
     description: form.descricao.trim(),
     priority: form.priority,
     columnId: form.colunaId
-  })
+  }
+
+  // ✅ NOVO: Se está editando, adiciona o ID
+  if (estaEditando.value && tarefaParaEditar.value) {
+    dados.id = tarefaParaEditar.value.id
+  }
+
+  emit('save', dados)
 
   closeAllDropdowns()
   emit('close')

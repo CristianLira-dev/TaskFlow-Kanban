@@ -8,13 +8,6 @@
         <span class="texto-tarefas">Tarefas</span>
       </button>
     </div>
-
-    <div class="perfil-tarefas-ocultas">
-      <button class="botao-tarefas" :class="{ ativa: selectedPerfil === 'ocultas' }" @click="$emit('select-perfil', 'ocultas')" :aria-pressed="selectedPerfil === 'ocultas'" aria-label="Mostrar tarefas ocultas">
-        <Svgs nome="olho" class="icone-tarefas" />
-        <span class="texto-tarefas">Tarefas Ocultas</span>
-      </button>
-    </div>
   </div>
 
   <!-- Versão recolhida (apenas ícones) -->
@@ -22,10 +15,6 @@
     <div class="menu-recolhido">
       <button class="botao-recolhido" :class="{ ativa: selectedPerfil === 'tarefas' }" @click="$emit('select-perfil', 'tarefas')" aria-label="Tarefas" title="Tarefas">
         <Svgs nome="task" />
-      </button>
-
-      <button class="botao-recolhido" :class="{ ativa: selectedPerfil === 'ocultas' }" @click="$emit('select-perfil', 'ocultas')" aria-label="Tarefas Ocultas" title="Tarefas Ocultas">
-        <Svgs nome="olho" />
       </button>
     </div>
   </div>

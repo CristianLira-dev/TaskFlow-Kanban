@@ -50,7 +50,7 @@
               <button class="btn-icon-action" aria-label="Editar" title="Editar tarefa" @click="editarTarefa(task)">
                 <Svgs nome="editar" />
               </button>
-              <button class="btn-icon-action" @click="removerTarefa(task.id)" title="Excluir tarefa">
+              <button class="btn-icon-action" @click="emitirExclusaoTarefa(task)" title="Excluir tarefa">
                 <Svgs nome="lixeira" />
               </button>
             </td>
@@ -72,17 +72,23 @@ import { useKanbanStore } from '@/stores/useKanbanStore'
 
 const kanbanStore = useKanbanStore()
 
-// ✅ Usar computed para garantir reatividade
 const tarefas = computed(() => kanbanStore.tasks)
 const colunas = computed(() => kanbanStore.columns)
 
-// Obtém o título da coluna pelo ID
+const emit = defineEmits(['excluir-tarefa', 'editar-tarefa'])
+
+const emitirExclusaoTarefa = (task) => {
+  emit('excluir-tarefa', task)
+}
+
+const editarTarefa = (task) => {
+  emit('editar-tarefa', task)
+}
 const getColumnTitle = (columnId) => {
   const column = colunas.value.find((col) => col.id === columnId)
   return column ? column.title : 'Sem Status'
 }
 
-// Obtém a cor da coluna pelo ID
 const getColumnColor = (columnId) => {
   const column = colunas.value.find((col) => col.id === columnId)
   if (!column) return '#10b981'
@@ -96,7 +102,6 @@ const getColumnColor = (columnId) => {
   return '#10b981'
 }
 
-// Estilo do badge de status
 const getStatusStyle = (columnId) => {
   const color = getColumnColor(columnId)
   return {
@@ -130,18 +135,6 @@ const formatarPrioridade = (prioridade) => {
     baixa: 'Baixa'
   }
   return map[prioridade] || prioridade
-}
-
-// Ações
-const editarTarefa = (task) => {
-  console.log('Editar tarefa:', task)
-  // Implementar lógica de edição
-}
-
-const removerTarefa = (taskId) => {
-  if (confirm('Deseja realmente excluir esta tarefa?')) {
-    kanbanStore.removerTarefa(taskId)
-  }
 }
 
 // Debug
