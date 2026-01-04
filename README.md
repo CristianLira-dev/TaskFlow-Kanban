@@ -10,9 +10,9 @@ O projeto permite criar quadros personalizados, organizar tarefas em colunas e m
 
 
 
-##  Vídeo Demostrativo
+## 🎥 Vídeo Demostrativo
 
-https://github.com/user-attachments/assets/5a8ca12a-b53b-4bad-ba36-684c5818bd4b
+https://github.com/user-attachments/assets/8f8c697c-cf76-4c4a-8bef-e99529633695
 
 ## ✨ Funcionalidades
 
