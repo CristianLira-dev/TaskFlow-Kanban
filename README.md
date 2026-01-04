@@ -11,9 +11,6 @@ O projeto permite criar quadros personalizados, organizar tarefas em colunas e m
 - Criação, edição e exclusão de tarefas
 - Drag & Drop com salvamento automático no banco de dados
 - Definição de prioridade nas tarefas
-- Sistema de tags
-- Filtros por prioridade e tags
-- Compartilhamento de quadros por link público (somente visualização)
 - Interface moderna e responsiva
 
 ---
