@@ -1,7 +1,7 @@
 <template>
   <section class="colunas-container">
     <!-- Debug: Mostra quantidade de colunas -->
-    <div v-if="colunas.length === 0" class="debug-message">Adicione uma coluna para começar a sua profutividade!</div>
+    <div v-if="colunas.length === 0" class="debug-message">Adicione uma coluna para começar a sua produtividade!</div>
 
     <div class="colunas-wrapper" ref="columnsWrapper">
       <div class="colunas" ref="columnsContainer">
@@ -14,7 +14,7 @@
               <button class="btn-editar-coluna" @click="editarColuna(column)" title="Editar coluna">
                 <Svgs nome="editar" class="icone-editar" />
               </button>
-              <button class="btn-excluir-coluna" @click="emitirExclusaoColuna(column)" title="Excluir coluna">
+              <button v-if="kanbanStore.columns.length > 1" class="btn-excluir-coluna" @click="emitirExclusaoColuna(column)">
                 <Svgs nome="lixeira" class="icone-excluir" />
               </button>
             </div>
