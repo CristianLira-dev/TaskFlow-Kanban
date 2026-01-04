@@ -3,12 +3,13 @@
 TaskFlow é uma aplicação web de organização de tarefas baseada em quadros (estilo Kanban), desenvolvida para oferecer uma experiência simples, visual e eficiente de gerenciamento de atividades.
 O projeto permite criar quadros personalizados, organizar tarefas em colunas e movimentá-las com **drag & drop**, mantendo tudo sincronizado com o back-end.
 
-## 🖼️ Preview do projeto 
+## Link Para Visualizar o Projeto
+
+### https://task-flow-kanban-tau.vercel.app/
+
+## 🖼️ Preview
 
 <img width="1919" height="908" alt="Screenshot-TaskFlow" src="https://github.com/user-attachments/assets/e9d8c673-fa02-4832-835f-00d6e9b359bd" />
-
-
-
 
 ## 🎥 Vídeo Demostrativo
 
