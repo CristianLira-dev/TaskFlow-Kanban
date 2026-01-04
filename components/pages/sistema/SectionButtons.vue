@@ -10,12 +10,12 @@
         <div class="toggle-views" role="tablist" aria-label="Visualizações">
           <button class="btn-view" :class="{ ativa: modelValue === 'kanban' }" @click="mudarView('kanban')" role="tab" :aria-selected="modelValue === 'kanban'" aria-controls="painel-kanban">
             <Svgs nome="kanban" class="icon-kanban" />
-            <span>Kanban</span>
+            <span class="span-button">Kanban</span>
           </button>
 
           <button class="btn-view" :class="{ ativa: modelValue === 'tabela' }" @click="mudarView('tabela')" role="tab" :aria-selected="modelValue === 'tabela'" aria-controls="painel-tabela">
             <Svgs nome="tabela" class="icon-tabela" />
-            <span>Tabela</span>
+            <span class="span-button">Tabela</span>
           </button>
         </div>
       </div>
@@ -86,51 +86,12 @@ const mudarView = (novaView) => {
     gap: 20px
     padding: 0 0 20px 0
     border-bottom: solid 2px var(--cor-escuro-4)
+    flex-wrap: wrap-reverse
 
     .grupo-esquerda
       display: flex
       align-items: center
       gap: 20px
-
-      .btn-filtro
-        display: inline-flex
-        align-items: center
-        gap: 8px
-        padding: 8px 12px
-        border-radius: 8px
-        background: transparent
-        border: 1px solid rgba(255,255,255,0.06)
-        color: var(--cor-branco)
-        cursor: pointer
-        font-family: var(--light)
-
-        .icon-filtro
-          width: 18px
-          height: 18px
-          fill: var(--cor-branco)
-
-      .buscar
-        position: relative
-
-        input
-          height: 40px
-          padding: 8px 36px 8px 12px
-          border-radius: 8px
-          border: 1px solid rgba(255,255,255,0.06)
-          background: transparent
-          color: var(--cor-branco)
-          font-family: var(--light)
-          width: 400px
-
-        .icon-lupa
-          position: absolute
-          right: 12px
-          top: 50%
-          transform: translateY(-50%)
-          width: 16px
-          height: 16px
-          fill: var(--cor-branco)
-          pointer-events: none
 
       .toggle-views
         font-family: var(--light)
@@ -208,4 +169,27 @@ const mudarView = (novaView) => {
           height: 20px
           fill: var(--cor-branco)
           transition: fill 0.3s ease
+
+@media (max-width: 1000px)
+  .span-button
+    display: none
+
+@media (max-width: 680px)
+  .section-buttons
+    .controles
+      .grupo-esquerda
+
+        .toggle-views
+          .btn-view
+            padding: 0.5em 1em
+
+      .grupo-direita
+        .acoes-direita
+          .btn-adicionar-coluna
+            padding: 1em 2em
+            font-size: var(--f1)
+
+        .btn-adicionar
+          padding: 1em 2em
+          font-size: var(--f1)
 </style>
