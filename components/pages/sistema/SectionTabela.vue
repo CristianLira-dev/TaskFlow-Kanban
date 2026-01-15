@@ -223,6 +223,10 @@ onMounted(() => {
         font-family: var(--semibold)
         font-size: var(--f3)
         color: var(--cor-branco)
+        max-width: 420px
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
       .id-tarefa
         font-size: var(--f1)
@@ -252,7 +256,10 @@ onMounted(() => {
     border-radius: 20px
     font-size: var(--f1)
     font-family: var(--semibold)
+    max-width: 420px
     white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
     .dot
       width: 6px

@@ -497,6 +497,14 @@ onUnmounted(() => {
     font-size: var(--f3)
     font-family: var(--semibold)
     color: var(--cor-branco)
+    max-width: 420px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    padding: 4px 8px
+    width: 100%
+    min-width: 0
+
 
   p
     margin: 0
@@ -506,6 +514,8 @@ onUnmounted(() => {
     font-size: var(--f2)
     border-radius: 16px
     background-color: rgba(255, 255, 255, 0.03)
+    overflow: hidden
+    text-overflow: ellipsis
 
   .prioridade-data
     display: flex
