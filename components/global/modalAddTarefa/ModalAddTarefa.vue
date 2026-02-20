@@ -385,6 +385,10 @@ const onConfirm = () => {
           transition: all 0.3s
           position: relative
           font-family: inherit
+          max-width: 220px
+          white-space: nowrap
+          overflow: hidden
+          text-overflow: ellipsis
 
           &::after
             content: 'V'

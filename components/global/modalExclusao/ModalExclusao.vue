@@ -153,6 +153,10 @@ const onConfirm = () => {
         color: rgba(255, 255, 255, 0.95)
         margin: 0
         line-height: 1.4
+        max-width: 420px
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
       .delete-message
         font-family: var(--light)
