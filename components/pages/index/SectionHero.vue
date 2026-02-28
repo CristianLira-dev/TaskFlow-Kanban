@@ -31,7 +31,7 @@ onMounted(() => {
   /* ===============================
    * CÂMERA
    * =============================== */
-  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100)
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100)
   camera.position.set(0, 0.18, 3.4)
 
   /* ===============================
