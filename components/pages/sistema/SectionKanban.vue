@@ -73,7 +73,6 @@ const emit = defineEmits(['excluir-coluna', 'excluir-tarefa', 'editar-tarefa'])
 
 // ✅ Usar computed para garantir reatividade
 const colunas = computed(() => kanbanStore.columns)
-const tarefas = computed(() => kanbanStore.tasks)
 
 // Função para emitir evento de exclusão de coluna
 const emitirExclusaoColuna = (column) => {
@@ -97,7 +96,7 @@ const taskSortables = new Map()
 
 // Função para obter tasks por coluna com computed
 const tasksByColumn = (columnId) => {
-  return tarefas.value.filter((task) => task.columnId === columnId)
+  return kanbanStore.getTasksByColumn(columnId)
 }
 
 // Classes de prioridade
@@ -176,9 +175,18 @@ const initializeSortable = async () => {
         evt.item.classList.remove('task-dragging')
 
         const taskId = Number(evt.item.dataset.taskId)
+        const oldColumnId = Number(evt.from.dataset.columnId)
         const newColumnId = Number(evt.to.dataset.columnId)
 
         kanbanStore.moverTarefa(taskId, newColumnId)
+
+        const newOrderIds = Array.from(evt.to.querySelectorAll('.kanban-card')).map((el) => Number(el.dataset.taskId))
+        kanbanStore.reordenarTarefas(newColumnId, newOrderIds)
+
+        if (oldColumnId !== newColumnId) {
+          const oldOrderIds = Array.from(evt.from.querySelectorAll('.kanban-card')).map((el) => Number(el.dataset.taskId))
+          kanbanStore.reordenarTarefas(oldColumnId, oldOrderIds)
+        }
       },
 
       onChange(evt) {

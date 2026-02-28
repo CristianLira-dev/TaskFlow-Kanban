@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SectionButtons from './SectionButtons.vue'
 import SectionKanban from './SectionKanban.vue'
 import SectionTabela from './SectionTabela.vue'
@@ -87,6 +87,11 @@ const salvarOuEditarTarefa = (dados) => {
     kanbanStore.adicionarTarefa(dados)
   }
 }
+
+
+onMounted(() => {
+  kanbanStore.initializeFromStorage()
+})
 </script>
 
 <style lang="sass" scoped>
