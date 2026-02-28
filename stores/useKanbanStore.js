@@ -1,12 +1,21 @@
 import { defineStore } from 'pinia'
 
+const STORAGE_KEY = 'taskflow-kanban-data'
+
+const getDefaultColumns = () => [
+  { id: 1, title: 'A Fazer', color: '#3b82f6', order: 1 },
+  { id: 2, title: 'Fazendo', color: '#f59e0b', order: 2 },
+  { id: 3, title: 'Feito', color: '#10b981', order: 3 }
+]
+
+const toNumber = (value, fallback = 0) => {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
+
 export const useKanbanStore = defineStore('kanban', {
   state: () => ({
-    columns: [
-      { id: 1, title: 'A Fazer', color: '#3b82f6', order: 1 },
-      { id: 2, title: 'Fazendo', color: '#f59e0b', order: 2 },
-      { id: 3, title: 'Feito', color: '#10b981', order: 3 }
-    ],
+    columns: getDefaultColumns(),
 
     tasks: [],
 
@@ -17,12 +26,14 @@ export const useKanbanStore = defineStore('kanban', {
 
     nextColumnId: 4,
     nextColumnOrder: 4,
-    nextTaskId: 4
+    nextTaskId: 1
   }),
 
   getters: {
     getTasksByColumn: (state) => (columnId) => {
-      return state.tasks.filter((task) => task.columnId === columnId)
+      return state.tasks
+        .filter((task) => task.columnId === columnId)
+        .sort((a, b) => toNumber(a.order, 0) - toNumber(b.order, 0))
     },
 
     getColumnById: (state) => (columnId) => {
@@ -39,6 +50,46 @@ export const useKanbanStore = defineStore('kanban', {
   },
 
   actions: {
+    initializeFromStorage() {
+      if (!process.client) return
+
+      try {
+        const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
+
+        if (!savedData) return
+
+        this.columns = Array.isArray(savedData.columns) && savedData.columns.length
+          ? savedData.columns.sort((a, b) => toNumber(a.order, 0) - toNumber(b.order, 0))
+          : getDefaultColumns()
+
+        this.tasks = Array.isArray(savedData.tasks)
+          ? savedData.tasks.map((task) => ({ ...task, order: toNumber(task.order, 1) }))
+          : []
+
+        this.nextColumnId = toNumber(savedData.nextColumnId, this.columns.length + 1)
+        this.nextColumnOrder = toNumber(savedData.nextColumnOrder, this.columns.length + 1)
+        this.nextTaskId = toNumber(savedData.nextTaskId, this.tasks.length + 1)
+      } catch {
+        this.columns = getDefaultColumns()
+        this.tasks = []
+      }
+    },
+
+    persistData() {
+      if (!process.client) return
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          columns: this.columns,
+          tasks: this.tasks,
+          nextColumnId: this.nextColumnId,
+          nextColumnOrder: this.nextColumnOrder,
+          nextTaskId: this.nextTaskId
+        })
+      )
+    },
+
     // ============================================
     // AÇÕES DE MODAL - COLUNA
     // ============================================
@@ -87,10 +138,8 @@ export const useKanbanStore = defineStore('kanban', {
       }
 
       this.columns.push(novaColuna)
+      this.persistData()
       this.fecharModalAddColuna()
-
-      console.log('Coluna adicionada:', novaColuna)
-      console.log('Total de colunas:', this.columns.length)
     },
 
     editarColuna({ id, nome, cor }) {
@@ -99,9 +148,7 @@ export const useKanbanStore = defineStore('kanban', {
       if (index !== -1) {
         this.columns[index].title = nome
         this.columns[index].color = cor
-
-        console.log('Coluna editada:', this.columns[index])
-        console.log('Colunas atualizadas:', this.columns)
+        this.persistData()
       }
 
       this.fecharModalAddColuna()
@@ -111,14 +158,9 @@ export const useKanbanStore = defineStore('kanban', {
       const index = this.columns.findIndex((c) => c.id === id)
 
       if (index !== -1) {
-        // Remove a coluna
         this.columns.splice(index, 1)
-
-        // Remove todas as tarefas dessa coluna
         this.tasks = this.tasks.filter((task) => task.columnId !== id)
-
-        console.log('Coluna removida:', id)
-        console.log('Total de colunas:', this.columns.length)
+        this.persistData()
       }
     },
 
@@ -126,21 +168,15 @@ export const useKanbanStore = defineStore('kanban', {
       const columnIndex = this.columns.findIndex((c) => c.id === columnId)
 
       if (columnIndex !== -1) {
-        // Remove a coluna da posição antiga
         const [column] = this.columns.splice(columnIndex, 1)
-
-        // Insere na nova posição
         this.columns.splice(newIndex, 0, column)
 
-        // Atualiza a propriedade order
         this.columns.forEach((col, idx) => {
           col.order = idx + 1
         })
 
-        console.log(
-          'Colunas reordenadas:',
-          this.columns.map((c) => c.title)
-        )
+        this.nextColumnOrder = this.columns.length + 1
+        this.persistData()
       }
     },
 
@@ -151,35 +187,49 @@ export const useKanbanStore = defineStore('kanban', {
       const now = new Date()
       const pad = (n) => String(n).padStart(2, '0')
       const date = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`
+      const columnId = dados.columnId || this.columns[0]?.id || 1
+      const maxOrder = this.tasks
+        .filter((task) => task.columnId === columnId)
+        .reduce((max, task) => Math.max(max, toNumber(task.order, 0)), 0)
 
       const novaTarefa = {
         id: this.nextTaskId++,
         title: dados.title,
         description: dados.description || '',
         priority: dados.priority || 'media',
-        columnId: dados.columnId || this.columns[0]?.id || 1,
+        columnId,
+        order: maxOrder + 1,
         createdAt: date
       }
 
       this.tasks.push(novaTarefa)
+      this.persistData()
       this.fecharModalAddTarefa()
-
-      console.log('Tarefa adicionada:', novaTarefa)
-      console.log('Total de tarefas:', this.tasks.length)
     },
 
     editarTarefa(dados) {
       const index = this.tasks.findIndex((t) => t.id === dados.id)
 
       if (index !== -1) {
-        // Atualiza os campos da tarefa
+        const colunaAnterior = this.tasks[index].columnId
+        const novaColuna = dados.columnId || this.columns[0]?.id || 1
+
         this.tasks[index].title = dados.title
         this.tasks[index].description = dados.description || ''
         this.tasks[index].priority = dados.priority || 'media'
-        this.tasks[index].columnId = dados.columnId || this.columns[0]?.id || 1
+        this.tasks[index].columnId = novaColuna
 
-        console.log('Tarefa editada:', this.tasks[index])
-        console.log('Tarefas atualizadas:', this.tasks)
+        if (colunaAnterior !== novaColuna) {
+          const maxOrder = this.tasks
+            .filter((task) => task.columnId === novaColuna && task.id !== dados.id)
+            .reduce((max, task) => Math.max(max, toNumber(task.order, 0)), 0)
+
+          this.tasks[index].order = maxOrder + 1
+          this.reordenarPorColunaInterno(colunaAnterior)
+        }
+
+        this.reordenarPorColunaInterno(novaColuna)
+        this.persistData()
       }
 
       this.fecharModalAddTarefa()
@@ -189,9 +239,10 @@ export const useKanbanStore = defineStore('kanban', {
       const index = this.tasks.findIndex((t) => t.id === taskId)
 
       if (index !== -1) {
+        const colunaRemovida = this.tasks[index].columnId
         this.tasks.splice(index, 1)
-        console.log('Tarefa removida:', taskId)
-        console.log('Total de tarefas:', this.tasks.length)
+        this.reordenarPorColunaInterno(colunaRemovida)
+        this.persistData()
       }
     },
 
@@ -200,13 +251,30 @@ export const useKanbanStore = defineStore('kanban', {
 
       if (task) {
         task.columnId = novaColumnId
-        console.log(`Tarefa ${taskId} movida para coluna ${novaColumnId}`)
       }
     },
 
+    reordenarPorColunaInterno(columnId) {
+      const tarefasDaColuna = this.tasks
+        .filter((task) => task.columnId === columnId)
+        .sort((a, b) => toNumber(a.order, 0) - toNumber(b.order, 0))
+
+      tarefasDaColuna.forEach((task, idx) => {
+        task.order = idx + 1
+      })
+    },
+
     reordenarTarefas(columnId, taskIds) {
-      // Implementar se necessário ordenação dentro da coluna
-      console.log(`Tarefas reordenadas na coluna ${columnId}:`, taskIds)
+      taskIds.forEach((taskId, idx) => {
+        const task = this.tasks.find((item) => item.id === taskId)
+
+        if (task) {
+          task.columnId = columnId
+          task.order = idx + 1
+        }
+      })
+
+      this.persistData()
     }
   }
 })

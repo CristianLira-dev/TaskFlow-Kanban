@@ -145,6 +145,45 @@ const mensagemModal = ref('')
 const mostrarSenha = ref(false)
 const mostrarSenhaCadastro = ref(false)
 
+const STORAGE_USERS_KEY = 'taskflow-users'
+const STORAGE_SESSION_KEY = 'taskflow-session'
+const STORAGE_CURRENT_USER_KEY = 'taskflow-current-user'
+const DEFAULT_AVATAR = '/images/dog.jpg'
+
+const getUsers = () => {
+  if (!process.client) return []
+
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+const saveUsers = (users) => {
+  if (!process.client) return
+  localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users))
+}
+
+const saveProfile = (email, profile) => {
+  if (!process.client) return
+  localStorage.setItem(`taskflow-user-profile:${email.toLowerCase()}`, JSON.stringify(profile))
+}
+
+const createSession = (email) => {
+  if (!process.client) return
+
+  const normalizedEmail = email.toLowerCase()
+  sessionStorage.setItem(
+    STORAGE_SESSION_KEY,
+    JSON.stringify({
+      email: normalizedEmail,
+      loggedAt: new Date().toISOString()
+    })
+  )
+  localStorage.setItem(STORAGE_CURRENT_USER_KEY, normalizedEmail)
+}
+
 onMounted(() => {
   storeLogin.inicializarClass()
 
@@ -207,6 +246,31 @@ function onSubmitCadastro() {
     return
   }
 
+  const users = getUsers()
+  const emailNormalizado = cadastroData.email.trim().toLowerCase()
+  const usuarioExistente = users.some((user) => user.email === emailNormalizado)
+
+  if (usuarioExistente) {
+    errosCadastro.email = 'Este e-mail já está cadastrado.'
+    return
+  }
+
+  const novoUsuario = {
+    id: crypto.randomUUID(),
+    nome: cadastroData.nome.trim(),
+    email: emailNormalizado,
+    senha: cadastroData.senha,
+    avatar: DEFAULT_AVATAR
+  }
+
+  users.push(novoUsuario)
+  saveUsers(users)
+  saveProfile(emailNormalizado, {
+    nome: novoUsuario.nome,
+    email: novoUsuario.email,
+    avatar: novoUsuario.avatar
+  })
+
   modalAberto.value = true
   mensagemModal.value = 'Cadastro realizado com sucesso!'
   storeLogin.setClass('sign-in-js')
@@ -252,6 +316,17 @@ function onSubmitLogin() {
   if (temErro) {
     return
   }
+
+  const users = getUsers()
+  const emailNormalizado = loginData.email.trim().toLowerCase()
+  const usuario = users.find((user) => user.email === emailNormalizado)
+
+  if (!usuario || usuario.senha !== loginData.senha) {
+    errosLogin.senha = 'Email ou senha inválidos.'
+    return
+  }
+
+  createSession(emailNormalizado)
 
   modalAberto.value = true
   mensagemModal.value = 'Login realizado com sucesso!'
